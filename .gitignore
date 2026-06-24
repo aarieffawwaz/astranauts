@@ -1,1 +1,3 @@
 opscenter-backend/
+.vercel
+.env*
