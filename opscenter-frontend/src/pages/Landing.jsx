@@ -416,8 +416,18 @@ export default function Landing() {
               label: "Cockpit",
               content: (
                 <>
-                  <div className="flex h-20 items-center justify-center rounded border border-white/10 bg-black">
-                    <span className="text-[10px] text-red-500">● LIVE FEED</span>
+                  <div className="relative flex h-20 items-center justify-center overflow-hidden rounded border border-white/10 bg-black">
+                    <video
+                      className="absolute inset-0 size-full object-cover opacity-80"
+                      src="/media/cockpit-feed.mp4"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                    />
+                    <span className="absolute right-1.5 top-1.5 flex items-center gap-1 text-[10px] text-red-500">
+                      <span className="animate-blink size-1.5 rounded-full bg-red-500" /> LIVE
+                    </span>
                   </div>
                   <div className="mt-2 flex gap-1.5">
                     {["W", "A", "S", "D"].map((k) => (
