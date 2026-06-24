@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Wifi, Compass } from "lucide-react";
+import { Wifi, Compass, ArrowLeft } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { socket, connectSocket, disconnectSocket } from "@/lib/socket";
 import { cn } from "@/lib/utils";
-import camFeed from "@/assets/trucks/HD-003 Cam.jpeg";
 
 const ROBOT_ID = 1;
 const ROBOT_NAME = "HD-001";
@@ -78,9 +77,14 @@ export default function Cockpit() {
   const distSafe = (telemetry.distance_to_obstacle ?? 45) > 30;
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-black p-4 text-white">
+    <div className="flex min-h-screen w-full flex-col bg-slate-950 p-4 text-white">
       <header className="flex items-center justify-between border-b border-white/10 pb-3">
-        <span className="font-mono text-lg font-bold text-amber-400">{ROBOT_NAME}</span>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" onClick={() => navigate("/supervisor")}>
+            <ArrowLeft className="mr-1 size-4" /> Supervisor
+          </Button>
+          <span className="font-mono text-lg font-bold text-amber-400">{ROBOT_NAME}</span>
+        </div>
         <span className="flex items-center gap-4 font-mono text-sm">
           <span className="text-amber-400">BATTERY {Math.round(telemetry.battery_level ?? 0)}%</span>
           <span className="text-blue-400">FUEL {telemetry.fuel_level ?? 68}%</span>
@@ -93,10 +97,15 @@ export default function Cockpit() {
         </div>
       </header>
 
-      <div
-        className="relative mx-auto mt-6 flex h-[55vh] w-full max-w-4xl items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-black bg-cover bg-center"
-        style={{ backgroundImage: `url(${camFeed})` }}
-      >
+      <div className="relative mx-auto mt-6 flex h-[55vh] w-full max-w-4xl items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-black">
+        <video
+          className="absolute inset-0 size-full object-cover"
+          src="/media/cockpit-feed.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
         <div className="scanline-overlay" />
         <svg viewBox="0 0 200 200" className="relative size-2/3 opacity-40">
           <line x1="100" y1="0" x2="100" y2="200" stroke="white" strokeWidth="0.5" />
@@ -106,7 +115,7 @@ export default function Cockpit() {
           <circle cx="100" cy="100" r="2" fill="white" />
         </svg>
         <div className="absolute right-4 top-4 flex items-center gap-2 text-xs font-mono text-red-500">
-          <span className="size-2 rounded-full bg-red-500" style={{ animation: "blink 1s step-start infinite" }} />
+          <span className="animate-blink size-2 rounded-full bg-red-500" />
           {ROBOT_NAME}
         </div>
       </div>

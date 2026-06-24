@@ -7,13 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { socket, connectSocket, disconnectSocket } from "@/lib/socket";
 import { MOCK_FLEET, mergeFleetWithLive } from "@/lib/mockData";
+import { STATUS_COLOR } from "@/lib/constants";
 import MineMap from "@/components/MineMap";
-
-const STATUS_COLOR = {
-  moving: "border-green-500/30 bg-green-500/15 text-green-400",
-  idle: "border-amber-500/30 bg-amber-500/15 text-amber-400",
-  alert: "border-red-500/30 bg-red-500/15 text-red-400",
-};
 
 const FILTERS = ["All", "Moving", "Idle", "Alert"];
 
@@ -59,7 +54,7 @@ export default function MapView() {
           <Button variant="outline" size="sm" onClick={() => navigate("/supervisor")}>
             <ArrowLeft className="mr-1 size-4" /> Supervisor
           </Button>
-          <span className="text-sm font-semibold tracking-wide text-slate-200">FLEET MAP — FULL VIEW</span>
+          <span className="text-sm font-semibold tracking-wide text-slate-200">FLEET MAP · FULL VIEW</span>
         </div>
         <div className="flex items-center gap-2">
           {FILTERS.map((f) => (
@@ -88,7 +83,7 @@ export default function MapView() {
       {selected && (
         <Card className="absolute right-4 top-20 z-[1000] w-72 border border-white/10 bg-slate-900/95 p-4 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-sm font-bold text-white">UNIT DETAIL — {selected.name}</p>
+            <p className="text-sm font-bold text-white">UNIT DETAIL · {selected.name}</p>
             <button onClick={() => setSelected(null)} className="text-slate-400 hover:text-white">
               <X className="size-4" />
             </button>

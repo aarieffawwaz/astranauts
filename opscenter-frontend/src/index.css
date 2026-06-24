@@ -207,6 +207,40 @@ code {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.2; }
 }
+.animate-blink {
+  animation: blink 1s step-start infinite;
+}
+
+@keyframes spin-ring {
+  to { transform: rotate(360deg); }
+}
+.btn-glow {
+  position: relative;
+  isolation: isolate;
+  box-shadow: 0 0 10px 1px rgba(245, 158, 11, 0.2);
+}
+.btn-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 250deg,
+    #fde68a 300deg,
+    #fff7ed 330deg,
+    #f59e0b 345deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: spin-ring 2.4s linear infinite;
+}
 
 .armor-grid-bg {
   background-image:

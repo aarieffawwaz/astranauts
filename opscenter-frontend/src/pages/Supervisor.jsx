@@ -10,15 +10,11 @@ import api from "@/lib/api";
 import { socket, connectSocket, disconnectSocket } from "@/lib/socket";
 import { askGemini } from "@/lib/gemini";
 import { MOCK_FLEET, MOCK_LEADERBOARD, MOCK_ALERTS, MOCK_FUEL_ACTIVITY, mergeFleetWithLive } from "@/lib/mockData";
+import { STATUS_COLOR } from "@/lib/constants";
+import { chatBubbleClass } from "@/lib/utils";
 import MineMap from "@/components/MineMap";
-
-const STATUS_COLOR = {
-  moving: "bg-green-500/15 text-green-400 border-green-500/30",
-  idle: "bg-amber-500/15 text-amber-400 border-amber-500/30",
-  alert: "bg-red-500/15 text-red-400 border-red-500/30",
-  online: "bg-green-500/15 text-green-400 border-green-500/30",
-  offline: "bg-slate-500/15 text-slate-400 border-slate-500/30",
-};
+import PamaLogo from "@/components/PamaLogo";
+import ArmorLogo from "@/components/ArmorLogo";
 
 export default function Supervisor() {
   const navigate = useNavigate();
@@ -130,9 +126,12 @@ export default function Supervisor() {
     <div className="min-h-screen w-full bg-[radial-gradient(circle_at_20%_-10%,rgba(245,158,11,0.06),transparent_45%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.06),transparent_40%),#0a0f1e] p-4 text-white">
       <header className="flex items-center justify-between rounded-xl border border-white/10 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-slate-900/90 px-5 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
         <div className="flex items-center gap-3">
+          <ArmorLogo className="size-7" />
           <span className="text-lg font-extrabold tracking-wide text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]">ARMOR</span>
           <span className="h-4 w-px bg-white/15" />
-          <span className="hidden text-sm font-medium tracking-wide text-slate-400 sm:block">BERAU MINE — SITE COMMAND CENTER</span>
+          <PamaLogo className="h-5 w-auto" />
+          <span className="h-4 w-px bg-white/15" />
+          <span className="hidden text-sm font-medium tracking-wide text-slate-400 sm:block">BERAU MINE · SITE COMMAND CENTER</span>
         </div>
         <div className="flex items-center gap-4">
           <Badge className="border border-green-500/30 bg-green-500/15 text-green-400">
@@ -156,7 +155,7 @@ export default function Supervisor() {
       <div className="mt-4 grid grid-cols-[3fr_2fr] gap-4">
         <Card className="relative min-h-[440px] overflow-hidden border border-white/10 bg-slate-950/60 p-0 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
           <div className="absolute inset-x-0 top-0 z-[1000] flex items-center justify-between bg-gradient-to-b from-slate-950/90 to-transparent px-4 py-3 pl-14">
-            <p className="text-sm font-semibold tracking-wide text-slate-200">Fleet Map — Live</p>
+            <p className="text-sm font-semibold tracking-wide text-slate-200">Fleet Map · Live</p>
             <div className="flex items-center gap-3 text-[11px] text-slate-300">
               <Legend color="#22c55e" label="Moving" />
               <Legend color="#f59e0b" label="Idle" />
@@ -291,7 +290,7 @@ export default function Supervisor() {
         </p>
         <div className="mb-2 flex max-h-32 flex-col gap-1.5 overflow-y-auto">
           {chat.map((m, i) => (
-            <div key={i} className={cn_chat(m.role)}>
+            <div key={i} className={chatBubbleClass(m.role)}>
               {m.text}
             </div>
           ))}
@@ -332,10 +331,4 @@ function Legend({ color, label }) {
       {label}
     </span>
   );
-}
-
-function cn_chat(role) {
-  return role === "user"
-    ? "self-end rounded-lg bg-blue-500/20 px-3 py-1.5 text-sm text-blue-200 max-w-[80%]"
-    : "self-start rounded-lg bg-slate-800/60 px-3 py-1.5 text-sm text-slate-200 max-w-[80%]";
 }

@@ -95,7 +95,7 @@ export default function MineMap({ fleet, height = "100%", onSelect, selectedName
             eventHandlers={onSelect ? { click: () => onSelect(r) } : undefined}
           >
             <Tooltip>
-              {r.name} — {r.operator} — {r.status}
+              {r.name} · {r.operator} · {r.status}
             </Tooltip>
           </Marker>
         ))}

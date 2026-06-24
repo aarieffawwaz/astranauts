@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 import { cn } from "@/lib/utils";
+import PamaLogo from "@/components/PamaLogo";
+import ArmorLogo from "@/components/ArmorLogo";
 
 const ROLES = {
   supervisor: {
@@ -52,9 +54,14 @@ export default function Login() {
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-[#0a0f1e]">
       <Card className="w-[420px] border border-white/10 bg-slate-900/80 p-8 text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-white drop-shadow-[0_0_18px_rgba(245,158,11,0.6)]">
-          ARMOR
-        </h1>
+        <div className="flex items-center justify-center gap-2">
+          <ArmorLogo className="size-8" />
+          <h1 className="text-4xl font-bold tracking-tight text-white drop-shadow-[0_0_18px_rgba(245,158,11,0.6)]">
+            ARMOR
+          </h1>
+          <span className="h-4 w-px bg-white/15" />
+          <PamaLogo className="h-5 w-auto" />
+        </div>
         <p className="mt-2 text-sm text-slate-400">AI-Relay Mining Operation Rover</p>
 
         <div className="mt-8 grid grid-cols-2 gap-4">
@@ -87,7 +94,7 @@ export default function Login() {
         <Button
           onClick={handleEnter}
           disabled={loading}
-          className="mt-6 h-11 w-full bg-amber-500 text-base font-semibold text-slate-950 hover:bg-amber-400"
+          className="btn-glow mt-6 h-11 w-full bg-amber-500 text-base font-semibold text-slate-950 hover:bg-amber-400"
         >
           {loading ? <Loader2 className="size-5 animate-spin" /> : "Enter OpsCenter"}
         </Button>

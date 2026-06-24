@@ -10,6 +10,7 @@ import { socket, connectSocket, disconnectSocket } from "@/lib/socket";
 import { askGemini } from "@/lib/gemini";
 import MineMap from "@/components/MineMap";
 import { MOCK_FLEET, MOCK_FUEL_ACTIVITY } from "@/lib/mockData";
+import { chatBubbleClass } from "@/lib/utils";
 
 const ROBOT_NAME = "HD-001";
 const NAV_ROBOT = MOCK_FLEET.find((r) => r.name === ROBOT_NAME);
@@ -94,7 +95,7 @@ export default function Navigator() {
     <div className="grid h-screen w-full grid-cols-[2fr_1fr] grid-rows-[auto_1fr_auto] gap-4 overflow-hidden bg-[#0a0f1e] p-4 text-white">
       <div className="col-span-2 flex items-center justify-between">
         <span className="font-mono text-sm text-slate-300">
-          NAVIGATOR — UNIT <span className="text-amber-400">{ROBOT_NAME}</span> — MODE: MANUAL
+          NAVIGATOR · UNIT <span className="text-amber-400">{ROBOT_NAME}</span> · MODE: MANUAL
         </span>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => navigate("/supervisor")}>
@@ -148,7 +149,7 @@ export default function Navigator() {
 
         <Card className="border border-white/10 bg-slate-900/60 p-4 shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <p className="mb-3 flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-200">
-            <Fuel className="size-4 text-blue-400" /> Fuel — This Activity
+            <Fuel className="size-4 text-blue-400" /> Fuel · This Activity
           </p>
           <div className="space-y-1.5">
             {NAV_FUEL_LOG.map((a, i) => (
@@ -171,14 +172,7 @@ export default function Navigator() {
         <p className="mb-2 text-sm font-medium text-slate-300">AI Co-pilot</p>
         <div className="mb-2 flex max-h-28 flex-col gap-1.5 overflow-y-auto">
           {messages.map((m, i) => (
-            <div
-              key={i}
-              className={
-                m.role === "user"
-                  ? "self-end rounded-lg bg-blue-500/20 px-3 py-1.5 text-sm text-blue-200 max-w-[80%]"
-                  : "self-start rounded-lg bg-slate-800/60 px-3 py-1.5 text-sm text-slate-200 max-w-[80%]"
-              }
-            >
+            <div key={i} className={chatBubbleClass(m.role)}>
               {m.text}
             </div>
           ))}
