@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 import { Moon, Satellite } from "lucide-react";
 import { INDONESIA_PROVINCES, INDONESIA_VIEWBOX, projectLonLat } from "@/lib/indonesiaGeo";
 
@@ -15,6 +17,70 @@ export const PAMA_REGIONS = [
 
 const [, , VB_W, VB_H] = INDONESIA_VIEWBOX.split(" ").map(Number);
 const ZOOM_SCALE = 3.4;
+
+const INDONESIA_BOUNDS = [
+  [6.05, 95],
+  [-11.05, 141.05],
+];
+
+function SatelliteView({ selectedRegion, compact, setHovered, toggleRegion, selected }) {
+  return (
+    <MapContainer
+      bounds={INDONESIA_BOUNDS}
+      style={{ height: "100%", width: "100%", background: "#0a0f1e" }}
+      zoomControl={false}
+      attributionControl={false}
+      scrollWheelZoom={false}
+      dragging={false}
+      doubleClickZoom={false}
+      touchZoom={false}
+      boxZoom={false}
+      keyboard={false}
+    >
+      <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
+      <FlyToSelected selectedRegion={selectedRegion} />
+      {PAMA_REGIONS.map((r) => {
+        const isActive = selected === r.region;
+        return (
+          <CircleMarker
+            key={r.region}
+            center={[r.lat, r.lon]}
+            radius={r.highlight ? (compact ? 7 : 9) : compact ? 5 : 6.5}
+            pathOptions={{
+              color: r.highlight ? "#fde68a" : "#1e293b",
+              weight: 1.5,
+              fillColor: r.highlight ? "#f59e0b" : isActive ? "#fde68a" : "#94a3b8",
+              fillOpacity: 1,
+            }}
+            eventHandlers={
+              compact
+                ? undefined
+                : {
+                    click: () => toggleRegion(r.region),
+                    mouseover: () => setHovered(r.region),
+                    mouseout: () => setHovered(null),
+                  }
+            }
+          >
+            {!compact && <Tooltip>{r.region}: {r.sites.join(", ")}</Tooltip>}
+          </CircleMarker>
+        );
+      })}
+    </MapContainer>
+  );
+}
+
+function FlyToSelected({ selectedRegion }) {
+  const map = useMap();
+  useEffect(() => {
+    if (selectedRegion) {
+      map.flyTo([selectedRegion.lat, selectedRegion.lon], 7, { duration: 0.9 });
+    } else {
+      map.flyToBounds(INDONESIA_BOUNDS, { duration: 0.9 });
+    }
+  }, [selectedRegion, map]);
+  return null;
+}
 
 export default function IndonesiaMap({ compact = false, selected: selectedProp, onSelectedChange }) {
   const [hovered, setHovered] = useState(null);
@@ -40,71 +106,78 @@ export default function IndonesiaMap({ compact = false, selected: selectedProp, 
   const isSatellite = mapMode === "satellite";
 
   return (
-    <div
-      className={`relative h-full w-full overflow-hidden rounded-2xl border border-white/10 ${
-        isSatellite ? "bg-[linear-gradient(135deg,#3f4a2e_0%,#5c6b3f_45%,#2f3a24_100%)]" : "bg-slate-950/60 armor-dot-grid-bg"
-      }`}
-    >
-      <svg viewBox={INDONESIA_VIEWBOX} className="h-full w-full">
-        <rect
-          x="0" y="0" width={VB_W} height={VB_H}
-          fill="transparent"
-          onClick={() => !compact && setSelected(null)}
-          style={{ cursor: !compact && selected ? "zoom-out" : "default" }}
+    <div className="relative h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-950/60 armor-dot-grid-bg [&_.leaflet-pane]:z-0">
+      {isSatellite ? (
+        <SatelliteView
+          selectedRegion={selectedRegion}
+          compact={compact}
+          hovered={hovered}
+          setHovered={setHovered}
+          toggleRegion={toggleRegion}
+          selected={selected}
         />
-        <g
-          style={{
-            transform: groupTransform,
-            transformOrigin: "0 0",
-            transition: "transform 700ms cubic-bezier(0.22,1,0.36,1)",
-          }}
-        >
-          {INDONESIA_PROVINCES.map((p) => (
-            <path
-              key={p.name}
-              d={p.d}
-              fillRule="evenodd"
-              fill={isSatellite ? "rgba(0,0,0,0.12)" : "rgba(245,158,11,0.07)"}
-              stroke={isSatellite ? "rgba(253,230,138,0.55)" : "rgba(245,158,11,0.3)"}
-              strokeWidth={0.6 / scale}
-              strokeLinejoin="round"
-              style={{ pointerEvents: "none" }}
-            />
-          ))}
+      ) : (
+        <svg viewBox={INDONESIA_VIEWBOX} className="h-full w-full">
+          <rect
+            x="0" y="0" width={VB_W} height={VB_H}
+            fill="transparent"
+            onClick={() => !compact && setSelected(null)}
+            style={{ cursor: !compact && selected ? "zoom-out" : "default" }}
+          />
+          <g
+            style={{
+              transform: groupTransform,
+              transformOrigin: "0 0",
+              transition: "transform 700ms cubic-bezier(0.22,1,0.36,1)",
+            }}
+          >
+            {INDONESIA_PROVINCES.map((p) => (
+              <path
+                key={p.name}
+                d={p.d}
+                fillRule="evenodd"
+                fill="rgba(245,158,11,0.07)"
+                stroke="rgba(245,158,11,0.3)"
+                strokeWidth={0.6 / scale}
+                strokeLinejoin="round"
+                style={{ pointerEvents: "none" }}
+              />
+            ))}
 
-          {PAMA_REGIONS.map((r) => {
-            const [x, y] = projectLonLat(r.lon, r.lat);
-            const isActive = selected === r.region;
-            return (
-              <g
-                key={r.region}
-                onMouseEnter={() => !compact && setHovered(r.region)}
-                onMouseLeave={() => !compact && setHovered(null)}
-                onClick={() => !compact && toggleRegion(r.region)}
-                style={{ cursor: compact ? "default" : "pointer" }}
-              >
-                {r.highlight && (
-                  <circle cx={x} cy={y} r={(compact ? 10 : 14) / scale} fill="rgba(245,158,11,0.35)" className="animate-pulse-dot" />
-                )}
-                {isActive && (
-                  <circle cx={x} cy={y} r={20 / scale} fill="none" stroke="#fde68a" strokeWidth={1.2 / scale} opacity="0.8" />
-                )}
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={(r.highlight ? (compact ? 5 : 6) : compact ? 3.5 : 4.5) / scale}
-                  fill={r.highlight ? "#f59e0b" : isActive ? "#fde68a" : "#94a3b8"}
-                  stroke={r.highlight ? "#fde68a" : "#1e293b"}
-                  strokeWidth={1.5 / scale}
-                />
-                {!compact && <title>{r.region}: {r.sites.join(", ")}</title>}
-              </g>
-            );
-          })}
-        </g>
-      </svg>
+            {PAMA_REGIONS.map((r) => {
+              const [x, y] = projectLonLat(r.lon, r.lat);
+              const isActive = selected === r.region;
+              return (
+                <g
+                  key={r.region}
+                  onMouseEnter={() => !compact && setHovered(r.region)}
+                  onMouseLeave={() => !compact && setHovered(null)}
+                  onClick={() => !compact && toggleRegion(r.region)}
+                  style={{ cursor: compact ? "default" : "pointer" }}
+                >
+                  {r.highlight && (
+                    <circle cx={x} cy={y} r={(compact ? 10 : 14) / scale} fill="rgba(245,158,11,0.35)" className="animate-pulse-dot" />
+                  )}
+                  {isActive && (
+                    <circle cx={x} cy={y} r={20 / scale} fill="none" stroke="#fde68a" strokeWidth={1.2 / scale} opacity="0.8" />
+                  )}
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r={(r.highlight ? (compact ? 5 : 6) : compact ? 3.5 : 4.5) / scale}
+                    fill={r.highlight ? "#f59e0b" : isActive ? "#fde68a" : "#94a3b8"}
+                    stroke={r.highlight ? "#fde68a" : "#1e293b"}
+                    strokeWidth={1.5 / scale}
+                  />
+                  {!compact && <title>{r.region}: {r.sites.join(", ")}</title>}
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+      )}
 
-      <div className={`absolute ${compact ? "right-1.5 top-1.5" : "right-3 top-3"} z-10 flex items-center gap-0.5 rounded-lg border border-white/10 bg-slate-950/80 p-0.5 backdrop-blur-sm`}>
+      <div className={`absolute ${compact ? "right-1.5 top-1.5" : "right-3 top-3"} z-[1000] flex items-center gap-0.5 rounded-lg border border-white/10 bg-slate-950/80 p-0.5 backdrop-blur-sm`}>
         <button
           type="button"
           onClick={() => setMapMode("dark")}
@@ -127,7 +200,7 @@ export default function IndonesiaMap({ compact = false, selected: selectedProp, 
 
       {/* Always-visible site list overlay — no hover needed */}
       {!compact && (
-        <div className="pointer-events-auto absolute left-3 top-3 max-h-[calc(100%-1.5rem)] w-[230px] overflow-y-auto rounded-lg border border-white/10 bg-slate-950/85 p-2.5 text-xs shadow-[0_8px_24px_rgba(0,0,0,0.5)] backdrop-blur-sm">
+        <div className="pointer-events-auto absolute left-3 top-3 z-[1000] max-h-[calc(100%-1.5rem)] w-[230px] overflow-y-auto rounded-lg border border-white/10 bg-slate-950/85 p-2.5 text-xs shadow-[0_8px_24px_rgba(0,0,0,0.5)] backdrop-blur-sm">
           {PAMA_REGIONS.map((r) => {
             const isActive = selected === r.region || (!selected && hovered === r.region);
             return (
@@ -153,7 +226,7 @@ export default function IndonesiaMap({ compact = false, selected: selectedProp, 
       )}
 
       {!compact && (
-        <div className="absolute bottom-3 right-3 flex items-center gap-3 rounded-lg border border-white/10 bg-slate-950/80 px-3 py-1.5 text-[11px] text-slate-300 backdrop-blur-sm">
+        <div className="absolute bottom-3 right-3 z-[1000] flex items-center gap-3 rounded-lg border border-white/10 bg-slate-950/80 px-3 py-1.5 text-[11px] text-slate-300 backdrop-blur-sm">
           <span className="flex items-center gap-1.5">
             <span className="size-2 rounded-full bg-amber-500" /> A.R.M.O.R Pilot (Berau, Kaltim)
           </span>
@@ -167,7 +240,7 @@ export default function IndonesiaMap({ compact = false, selected: selectedProp, 
         <button
           type="button"
           onClick={() => setSelected(null)}
-          className="absolute right-3 top-12 rounded-full border border-white/10 bg-slate-950/80 px-3 py-1.5 text-[11px] font-medium text-slate-300 backdrop-blur-sm hover:bg-white/10"
+          className="absolute right-3 top-12 z-[1000] rounded-full border border-white/10 bg-slate-950/80 px-3 py-1.5 text-[11px] font-medium text-slate-300 backdrop-blur-sm hover:bg-white/10"
         >
           Zoom out
         </button>
