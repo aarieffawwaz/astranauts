@@ -17,6 +17,31 @@ import PamaLogo from "@/components/PamaLogo";
 import ArmorLogo from "@/components/ArmorLogo";
 import IndonesiaMap from "@/components/IndonesiaMap";
 
+function useParallax(speed = 0.2) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let frame = null;
+    function update() {
+      const rect = el.getBoundingClientRect();
+      const offset = (rect.top - window.innerHeight / 2) * speed;
+      el.style.transform = `translateY(${offset.toFixed(1)}px)`;
+      frame = null;
+    }
+    function onScroll() {
+      if (frame == null) frame = requestAnimationFrame(update);
+    }
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame != null) cancelAnimationFrame(frame);
+    };
+  }, [speed]);
+  return ref;
+}
+
 function useReveal() {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -83,6 +108,8 @@ const TECH_GROUPS = [
 export default function Landing() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
+  const heroGlowRef = useParallax(-0.15);
+  const heroMockupRef = useParallax(-0.06);
 
   useEffect(() => {
     function onScroll() {
@@ -121,6 +148,7 @@ export default function Landing() {
       {/* HERO */}
       <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-24 text-center">
         <div
+          ref={heroGlowRef}
           className="absolute inset-0"
           style={{
             background:
@@ -158,8 +186,9 @@ export default function Landing() {
         </div>
 
         {/* Floating dashboard preview */}
+        <div ref={heroMockupRef} className="relative z-10 mt-16 w-full max-w-4xl">
         <div
-          className="animate-float relative z-10 mt-16 w-full max-w-4xl"
+          className="animate-float relative w-full"
           style={{ transform: "perspective(1000px) rotateX(8deg)" }}
         >
           <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0a0f1e] p-5 shadow-[0_30px_80px_-20px_rgba(245,158,11,0.25),0_30px_60px_-10px_rgba(0,0,0,0.6)]">
@@ -188,6 +217,7 @@ export default function Landing() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </section>
 

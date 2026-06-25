@@ -211,8 +211,13 @@ code {
   animation: blink 1s step-start infinite;
 }
 
+@property --beam-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
 @keyframes spin-ring {
-  to { transform: rotate(360deg); }
+  to { --beam-angle: 360deg; }
 }
 .btn-glow {
   position: relative;
@@ -226,8 +231,11 @@ code {
   z-index: -1;
   border-radius: inherit;
   padding: 2px;
+  /* animating the gradient angle (not transform: rotate) avoids a Chromium
+     compositing bug where masked conic-gradients under an animated transform
+     intermittently paint unmasked, leaking a long diagonal streak past the button */
   background: conic-gradient(
-    from 0deg,
+    from var(--beam-angle),
     transparent 0deg,
     transparent 250deg,
     #fde68a 300deg,
@@ -287,15 +295,16 @@ html {
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(24px) scale(0.97); filter: blur(6px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 .fade-up-init {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(24px) scale(0.97);
+  filter: blur(6px);
 }
 .fade-up-in {
-  animation: fade-up 0.8s ease forwards;
+  animation: fade-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .grain-overlay {
