@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ShieldCheck, LogOut, TrendingUp, TrendingDown, Gauge, Layers, Send as SendIcon, Bot, Fuel } from "lucide-react";
+import { ShieldCheck, LogOut, TrendingUp, TrendingDown, Gauge, Layers, Send as SendIcon, Bot, Fuel, Volume2, VolumeX } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { socket, connectSocket, disconnectSocket } from "@/lib/socket";
 import { MOCK_FLEET, MOCK_LEADERBOARD, MOCK_ALERTS, MOCK_FUEL_ACTIVITY, mergeFleetWithLive } from "@/lib/mockData";
 import { STATUS_COLOR } from "@/lib/constants";
 import { chatBubbleClass } from "@/lib/utils";
+import { useSpeech } from "@/lib/useSpeech";
 import MineMap from "@/components/MineMap";
 import PamaLogo from "@/components/PamaLogo";
 import ArmorLogo from "@/components/ArmorLogo";
@@ -25,6 +26,7 @@ export default function Supervisor() {
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const liveByName = useRef({});
+  const speech = useSpeech();
 
   useEffect(() => {
     const tick = setInterval(() => setNow(new Date()), 1000);
@@ -107,9 +109,13 @@ export default function Supervisor() {
     setChatLoading(true);
     try {
       const res = await api.post("/api/rag/query", { question });
-      setChat((c) => [...c, { role: "ai", text: res.data?.data?.answer ?? "..." }]);
+      const answer = res.data?.data?.answer ?? "...";
+      setChat((c) => [...c, { role: "ai", text: answer }]);
+      speech.speak(answer);
     } catch {
-      setChat((c) => [...c, { role: "ai", text: "Sorry, AI service unavailable right now." }]);
+      const answer = "Sorry, AI service unavailable right now.";
+      setChat((c) => [...c, { role: "ai", text: answer }]);
+      speech.speak(answer);
     } finally {
       setChatLoading(false);
     }
@@ -276,6 +282,17 @@ export default function Supervisor() {
         <p className="mb-3 flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-200">
           <Bot className="size-4 text-amber-400" /> AI Chat
           <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-400">AI Agent</span>
+          <button
+            type="button"
+            onClick={() => speech.setEnabled((e) => !e)}
+            title={speech.enabled ? "Voice reply on — click to mute" : "Voice reply off — click to enable"}
+            className={`ml-auto flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors ${
+              speech.enabled ? "border-amber-500/40 bg-amber-500/15 text-amber-400" : "border-white/10 text-slate-400 hover:bg-white/5"
+            }`}
+          >
+            {speech.enabled ? <Volume2 className="size-3" /> : <VolumeX className="size-3" />}
+            Voice
+          </button>
         </p>
         <div className="mb-2 flex max-h-32 flex-col gap-1.5 overflow-y-auto">
           {chat.map((m, i) => (

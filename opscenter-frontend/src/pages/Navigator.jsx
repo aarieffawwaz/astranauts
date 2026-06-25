@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Gamepad2, ArrowLeft, Fuel } from "lucide-react";
+import { Gamepad2, ArrowLeft, Fuel, Volume2, VolumeX } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { socket, connectSocket, disconnectSocket } from "@/lib/socket";
 import MineMap from "@/components/MineMap";
 import { MOCK_FLEET, MOCK_FUEL_ACTIVITY } from "@/lib/mockData";
 import { chatBubbleClass } from "@/lib/utils";
+import { useSpeech } from "@/lib/useSpeech";
 
 const ROBOT_NAME = "HD-001";
 const NAV_ROBOT = MOCK_FLEET.find((r) => r.name === ROBOT_NAME);
@@ -37,6 +38,7 @@ export default function Navigator() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const startRef = useRef(Date.now());
+  const speech = useSpeech();
 
   useEffect(() => {
     const tick = setInterval(() => setElapsed(Math.floor((Date.now() - startRef.current) / 1000)), 1000);
@@ -70,9 +72,13 @@ export default function Navigator() {
     setLoading(true);
     try {
       const res = await api.post("/api/rag/query", { question });
-      setMessages((m) => [...m, { role: "ai", text: res.data?.data?.answer ?? "..." }]);
+      const answer = res.data?.data?.answer ?? "...";
+      setMessages((m) => [...m, { role: "ai", text: answer }]);
+      speech.speak(answer);
     } catch {
-      setMessages((m) => [...m, { role: "ai", text: "AI service unavailable." }]);
+      const answer = "AI service unavailable.";
+      setMessages((m) => [...m, { role: "ai", text: answer }]);
+      speech.speak(answer);
     } finally {
       setLoading(false);
     }
@@ -165,6 +171,17 @@ export default function Navigator() {
         <p className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-300">
           AI Co-pilot
           <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-400">AI Agent</span>
+          <button
+            type="button"
+            onClick={() => speech.setEnabled((e) => !e)}
+            title={speech.enabled ? "Voice reply on — click to mute" : "Voice reply off — click to enable"}
+            className={`ml-auto flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors ${
+              speech.enabled ? "border-amber-500/40 bg-amber-500/15 text-amber-400" : "border-white/10 text-slate-400 hover:bg-white/5"
+            }`}
+          >
+            {speech.enabled ? <Volume2 className="size-3" /> : <VolumeX className="size-3" />}
+            Voice
+          </button>
         </p>
         <div className="mb-2 flex max-h-28 flex-col gap-1.5 overflow-y-auto">
           {messages.map((m, i) => (
