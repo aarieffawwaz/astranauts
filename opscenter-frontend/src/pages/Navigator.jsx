@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import api from "@/lib/api";
 import { socket, connectSocket, disconnectSocket } from "@/lib/socket";
-import { askGemini } from "@/lib/gemini";
 import MineMap from "@/components/MineMap";
 import { MOCK_FLEET, MOCK_FUEL_ACTIVITY } from "@/lib/mockData";
 import { chatBubbleClass } from "@/lib/utils";
@@ -73,12 +72,7 @@ export default function Navigator() {
       const res = await api.post("/api/rag/query", { question });
       setMessages((m) => [...m, { role: "ai", text: res.data?.data?.answer ?? "..." }]);
     } catch {
-      try {
-        const answer = await askGemini(question);
-        setMessages((m) => [...m, { role: "ai", text: answer }]);
-      } catch {
-        setMessages((m) => [...m, { role: "ai", text: "AI service unavailable." }]);
-      }
+      setMessages((m) => [...m, { role: "ai", text: "AI service unavailable." }]);
     } finally {
       setLoading(false);
     }

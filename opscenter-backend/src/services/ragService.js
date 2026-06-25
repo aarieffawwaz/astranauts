@@ -1,4 +1,5 @@
 import { ollamaLLM } from "../config/ollama.js";
+import { generateGeminiCompletion } from "../config/gemini.js";
 import KnowledgeBase from "../models/KnowledgeBase.js";
 import Telemetry from "../models/Telemetry.js";
 import Robot from "../models/Robot.js";
@@ -15,8 +16,13 @@ class RAGService {
         try {
             logger.info(`RAG Query: "${question}"`);
 
-            // 1. Retrieve relevant documents
-            const relevantDocs = await KnowledgeBase.searchSimilar(question, topK);
+            // 1. Retrieve relevant documents — embeddings need Ollama too; skip RAG context if it's unreachable
+            let relevantDocs = [];
+            try {
+                relevantDocs = await KnowledgeBase.searchSimilar(question, topK);
+            } catch (embeddingError) {
+                logger.warn("Embedding lookup unavailable, skipping document context:", embeddingError.message);
+            }
 
             // 2. Build context from retrieved documents
             let contextText = relevantDocs.map((doc, idx) => `Document ${idx + 1} (Source: ${doc.source}, Similarity: ${(doc.similarity * 100).toFixed(1)}%):\n${doc.content}`).join("\n\n---\n\n");
@@ -30,8 +36,14 @@ class RAGService {
             // 4. Build final prompt
             const prompt = this.buildPrompt(question, contextText, realtimeContext);
 
-            // 5. Generate response
-            const response = await ollamaLLM.invoke(prompt);
+            // 5. Generate response — try local Ollama first, fall back to Gemini if unreachable
+            let response;
+            try {
+                response = await ollamaLLM.invoke(prompt);
+            } catch (ollamaError) {
+                logger.warn("Ollama unavailable, falling back to Gemini:", ollamaError.message);
+                response = await generateGeminiCompletion(prompt);
+            }
 
             return {
                 answer: response,

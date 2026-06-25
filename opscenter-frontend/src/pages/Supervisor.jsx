@@ -8,7 +8,6 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import api from "@/lib/api";
 import { socket, connectSocket, disconnectSocket } from "@/lib/socket";
-import { askGemini } from "@/lib/gemini";
 import { MOCK_FLEET, MOCK_LEADERBOARD, MOCK_ALERTS, MOCK_FUEL_ACTIVITY, mergeFleetWithLive } from "@/lib/mockData";
 import { STATUS_COLOR } from "@/lib/constants";
 import { chatBubbleClass } from "@/lib/utils";
@@ -111,12 +110,7 @@ export default function Supervisor() {
       const res = await api.post("/api/rag/query", { question });
       setChat((c) => [...c, { role: "ai", text: res.data?.data?.answer ?? "..." }]);
     } catch {
-      try {
-        const answer = await askGemini(question);
-        setChat((c) => [...c, { role: "ai", text: answer }]);
-      } catch {
-        setChat((c) => [...c, { role: "ai", text: "Sorry, AI service unavailable right now." }]);
-      }
+      setChat((c) => [...c, { role: "ai", text: "Sorry, AI service unavailable right now." }]);
     } finally {
       setChatLoading(false);
     }
