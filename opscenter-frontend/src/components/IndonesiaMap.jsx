@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Moon, Satellite } from "lucide-react";
 import { INDONESIA_PROVINCES, INDONESIA_VIEWBOX, projectLonLat } from "@/lib/indonesiaGeo";
 
 // Coordinates sourced from pamapersada.com/en/our-project site listings.
@@ -18,6 +19,7 @@ const ZOOM_SCALE = 3.4;
 export default function IndonesiaMap({ compact = false, selected: selectedProp, onSelectedChange }) {
   const [hovered, setHovered] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
+  const [mapMode, setMapMode] = useState("dark");
   const isControlled = selectedProp !== undefined;
   const selected = isControlled ? selectedProp : selectedState;
   const setSelected = isControlled ? onSelectedChange : setSelectedState;
@@ -35,8 +37,14 @@ export default function IndonesiaMap({ compact = false, selected: selectedProp, 
 
   const toggleRegion = (name) => setSelected((cur) => (cur === name ? null : name));
 
+  const isSatellite = mapMode === "satellite";
+
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-950/60 armor-dot-grid-bg">
+    <div
+      className={`relative h-full w-full overflow-hidden rounded-2xl border border-white/10 ${
+        isSatellite ? "bg-[linear-gradient(135deg,#3f4a2e_0%,#5c6b3f_45%,#2f3a24_100%)]" : "bg-slate-950/60 armor-dot-grid-bg"
+      }`}
+    >
       <svg viewBox={INDONESIA_VIEWBOX} className="h-full w-full">
         <rect
           x="0" y="0" width={VB_W} height={VB_H}
@@ -56,8 +64,8 @@ export default function IndonesiaMap({ compact = false, selected: selectedProp, 
               key={p.name}
               d={p.d}
               fillRule="evenodd"
-              fill="rgba(245,158,11,0.07)"
-              stroke="rgba(245,158,11,0.3)"
+              fill={isSatellite ? "rgba(0,0,0,0.12)" : "rgba(245,158,11,0.07)"}
+              stroke={isSatellite ? "rgba(253,230,138,0.55)" : "rgba(245,158,11,0.3)"}
               strokeWidth={0.6 / scale}
               strokeLinejoin="round"
               style={{ pointerEvents: "none" }}
@@ -95,6 +103,27 @@ export default function IndonesiaMap({ compact = false, selected: selectedProp, 
           })}
         </g>
       </svg>
+
+      <div className={`absolute ${compact ? "right-1.5 top-1.5" : "right-3 top-3"} z-10 flex items-center gap-0.5 rounded-lg border border-white/10 bg-slate-950/80 p-0.5 backdrop-blur-sm`}>
+        <button
+          type="button"
+          onClick={() => setMapMode("dark")}
+          className={`flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-medium transition-colors ${
+            mapMode === "dark" ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-white/10"
+          }`}
+        >
+          <Moon className={compact ? "size-2.5" : "size-3"} /> {!compact && "Dark"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMapMode("satellite")}
+          className={`flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-medium transition-colors ${
+            mapMode === "satellite" ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-white/10"
+          }`}
+        >
+          <Satellite className={compact ? "size-2.5" : "size-3"} /> {!compact && "Satellite"}
+        </button>
+      </div>
 
       {/* Always-visible site list overlay — no hover needed */}
       {!compact && (
@@ -138,7 +167,7 @@ export default function IndonesiaMap({ compact = false, selected: selectedProp, 
         <button
           type="button"
           onClick={() => setSelected(null)}
-          className="absolute right-3 top-3 rounded-full border border-white/10 bg-slate-950/80 px-3 py-1.5 text-[11px] font-medium text-slate-300 backdrop-blur-sm hover:bg-white/10"
+          className="absolute right-3 top-12 rounded-full border border-white/10 bg-slate-950/80 px-3 py-1.5 text-[11px] font-medium text-slate-300 backdrop-blur-sm hover:bg-white/10"
         >
           Zoom out
         </button>
