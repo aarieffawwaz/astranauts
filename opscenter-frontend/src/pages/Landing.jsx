@@ -15,7 +15,7 @@ import {
 import LandingLayout from "@/pages/LandingLayout";
 import PamaLogo from "@/components/PamaLogo";
 import ArmorLogo from "@/components/ArmorLogo";
-import IndonesiaMap from "@/components/IndonesiaMap";
+import IndonesiaMap, { PAMA_REGIONS } from "@/components/IndonesiaMap";
 
 function useParallax(speed = 0.2) {
   const ref = useRef(null);
@@ -108,6 +108,7 @@ const TECH_GROUPS = [
 export default function Landing() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
+  const [activeRegion, setActiveRegion] = useState(null);
   const heroGlowRef = useParallax(-0.15);
   const heroMockupRef = useParallax(-0.06);
 
@@ -252,18 +253,24 @@ export default function Landing() {
           </p>
         </Reveal>
         <Reveal delay={120} className="mt-10">
-          <div className="h-[420px]">
-            <IndonesiaMap />
+          <div className="h-[480px]">
+            <IndonesiaMap selected={activeRegion} onSelectedChange={setActiveRegion} />
           </div>
         </Reveal>
         <Reveal delay={200} className="mt-6 flex flex-wrap gap-2">
-          {["Sumatera Selatan", "Kalimantan Tengah", "Kalimantan Selatan", "Kalimantan Timur", "Sulawesi", "Office"].map((r) => (
-            <span
-              key={r}
-              className="rounded-full border border-white/10 bg-slate-900/60 px-3 py-1.5 text-xs font-medium text-slate-300"
+          {PAMA_REGIONS.map((r) => (
+            <button
+              key={r.region}
+              type="button"
+              onClick={() => setActiveRegion((cur) => (cur === r.region ? null : r.region))}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                activeRegion === r.region
+                  ? "border-amber-500/50 bg-amber-500/15 text-amber-300"
+                  : "border-white/10 bg-slate-900/60 text-slate-300 hover:border-amber-500/30 hover:text-amber-200"
+              }`}
             >
-              {r}
-            </span>
+              {r.region}
+            </button>
           ))}
         </Reveal>
       </section>
@@ -433,12 +440,39 @@ export default function Landing() {
               label: "Supervisor",
               content: (
                 <>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <div key={i} className="h-6 rounded bg-slate-800/80" />
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <span className="text-[9px] font-semibold tracking-wide text-slate-300">Fleet Map · Live</span>
+                    <div className="flex items-center gap-1.5 text-[8px] text-slate-400">
+                      <span className="flex items-center gap-0.5"><span className="size-1.5 rounded-full bg-green-500" />2</span>
+                      <span className="flex items-center gap-0.5"><span className="size-1.5 rounded-full bg-amber-500" />1</span>
+                    </div>
+                  </div>
+                  <div className="armor-grid-bg relative h-16 overflow-hidden rounded border border-white/5 bg-slate-950/80">
+                    <span className="absolute left-3 top-3 size-2 rounded-full bg-green-500 shadow-[0_0_6px_2px_rgba(34,197,94,0.6)]" />
+                    <span className="absolute left-11 top-8 size-2 rounded-full bg-green-500 shadow-[0_0_6px_2px_rgba(34,197,94,0.6)]" />
+                    <span className="absolute left-[68px] top-3 size-2 rounded-full bg-amber-500 shadow-[0_0_6px_2px_rgba(245,158,11,0.6)]" />
+                  </div>
+                  <div className="mt-2 grid grid-cols-4 gap-1">
+                    {[["ACT", "3/3"], ["UTIL", "82%"], ["CYC", "145"], ["SAFE", "98"]].map(([l, v]) => (
+                      <div key={l} className="rounded bg-slate-800/60 px-1 py-1 text-center">
+                        <p className="text-[6.5px] uppercase text-slate-500">{l}</p>
+                        <p className="text-[9.5px] font-bold text-white">{v}</p>
+                      </div>
                     ))}
                   </div>
-                  <div className="armor-grid-bg mt-2 h-20 rounded bg-slate-950/80" />
+                  <div className="mt-1.5 space-y-1">
+                    {[["1", "Budi", "945"], ["2", "Sarif", "825"]].map(([rank, name, score]) => (
+                      <div key={rank} className="flex items-center justify-between rounded bg-slate-800/50 px-1.5 py-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className={`flex size-3.5 items-center justify-center rounded-full text-[7px] font-bold ${rank === "1" ? "bg-amber-500 text-slate-950" : "bg-slate-700 text-slate-300"}`}>
+                            {rank}
+                          </span>
+                          <span className="text-[9px] text-white">{name}</span>
+                        </div>
+                        <span className="font-mono text-[9px] text-white">{score}</span>
+                      </div>
+                    ))}
+                  </div>
                 </>
               ),
             },
@@ -473,13 +507,31 @@ export default function Landing() {
               label: "Navigator",
               content: (
                 <>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <div className="h-20 rounded bg-slate-950/80 armor-dot-grid-bg" />
-                    <div className="space-y-1">
-                      {Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="h-3.5 rounded bg-slate-800/80" />
-                      ))}
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <span className="text-[9px] font-semibold tracking-wide text-slate-300">Tactical Map</span>
+                    <div className="flex items-center gap-1.5 text-[8px] text-slate-400">
+                      <span className="flex items-center gap-0.5"><span className="size-1.5 rounded-full bg-green-500" />Move</span>
+                      <span className="flex items-center gap-0.5"><span className="size-1.5 rounded-full bg-red-500" />Alert</span>
                     </div>
+                  </div>
+                  <div className="armor-dot-grid-bg relative h-16 overflow-hidden rounded border border-white/5 bg-slate-950/80">
+                    <span className="absolute left-1/2 top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-green-500 shadow-[0_0_8px_2px_rgba(34,197,94,0.7)]" />
+                    <span className="absolute bottom-1 left-1 rounded bg-slate-900/90 px-1 py-0.5 text-[7px] font-medium text-slate-300">
+                      HD-001 · 18cm/s
+                    </span>
+                  </div>
+                  <div className="mt-2 space-y-1.5">
+                    {[["Battery", "85%", "85%", "bg-green-400"], ["Fuel", "68%", "68%", "bg-blue-400"], ["Signal", "Good", "80%", "bg-amber-400"]].map(([label, val, width, color]) => (
+                      <div key={label}>
+                        <div className="flex justify-between text-[8px] text-slate-400">
+                          <span>{label}</span>
+                          <span className="text-slate-200">{val}</span>
+                        </div>
+                        <div className="mt-0.5 h-1 overflow-hidden rounded-full bg-slate-800">
+                          <div className={`h-full rounded-full ${color}`} style={{ width }} />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </>
               ),

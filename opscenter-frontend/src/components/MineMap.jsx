@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -9,6 +9,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { Moon, Satellite } from "lucide-react";
 import {
   MINE_CENTER,
   MINE_BOUNDARY_GEOJSON,
@@ -49,28 +50,58 @@ function truckIcon(color, label, photo) {
   });
 }
 
+const TILE_LAYERS = {
+  dark: {
+    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+  },
+  satellite: {
+    attribution: "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  },
+};
+
 export default function MineMap({ fleet, height = "100%", onSelect, selectedName }) {
+  const [mapMode, setMapMode] = useState("dark");
   const boundaryStyle = useMemo(
-    () => ({ color: "#f59e0b", weight: 1.5, fillColor: "#f59e0b", fillOpacity: 0.06, dashArray: "4 4" }),
-    []
+    () => ({ color: "#f59e0b", weight: 1.5, fillColor: "#f59e0b", fillOpacity: mapMode === "satellite" ? 0.12 : 0.06, dashArray: "4 4" }),
+    [mapMode]
   );
   const roadStyle = useMemo(
-    () => ({ color: "#3b82f6", weight: 2.5, opacity: 0.7, dashArray: "1 6" }),
-    []
+    () => ({ color: mapMode === "satellite" ? "#60a5fa" : "#3b82f6", weight: 2.5, opacity: 0.85, dashArray: "1 6" }),
+    [mapMode]
   );
+  const tile = TILE_LAYERS[mapMode];
 
   return (
-    <div style={{ height, width: "100%" }} className="overflow-hidden rounded-lg [&_.leaflet-control-attribution]:bg-slate-900/70 [&_.leaflet-control-attribution]:text-[10px] [&_.leaflet-control-attribution]:text-slate-400 [&_.leaflet-control-zoom-in]:bg-slate-900 [&_.leaflet-control-zoom-in]:text-white [&_.leaflet-control-zoom-out]:bg-slate-900 [&_.leaflet-control-zoom-out]:text-white">
+    <div style={{ height, width: "100%" }} className="relative overflow-hidden rounded-lg [&_.leaflet-control-attribution]:bg-slate-900/70 [&_.leaflet-control-attribution]:text-[10px] [&_.leaflet-control-attribution]:text-slate-400 [&_.leaflet-control-zoom-in]:bg-slate-900 [&_.leaflet-control-zoom-in]:text-white [&_.leaflet-control-zoom-out]:bg-slate-900 [&_.leaflet-control-zoom-out]:text-white">
+      <div className="absolute right-2 top-2 z-[1000] flex gap-1 rounded-lg border border-white/10 bg-slate-900/85 p-1 backdrop-blur-sm">
+        <button
+          type="button"
+          onClick={() => setMapMode("dark")}
+          className={`flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium transition-colors ${
+            mapMode === "dark" ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-white/10"
+          }`}
+        >
+          <Moon className="size-3.5" /> Dark
+        </button>
+        <button
+          type="button"
+          onClick={() => setMapMode("satellite")}
+          className={`flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium transition-colors ${
+            mapMode === "satellite" ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-white/10"
+          }`}
+        >
+          <Satellite className="size-3.5" /> Satellite
+        </button>
+      </div>
       <MapContainer
         center={MINE_CENTER}
         zoom={14}
         style={{ height: "100%", width: "100%", background: "#0a0f1e" }}
         zoomControl={true}
       >
-        <TileLayer
-          attribution='&copy; OpenStreetMap contributors &copy; CARTO'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-        />
+        <TileLayer key={mapMode} attribution={tile.attribution} url={tile.url} />
         <GeoJSON data={MINE_BOUNDARY_GEOJSON} style={() => boundaryStyle} />
         <GeoJSON data={HAUL_ROAD_GEOJSON} style={() => roadStyle} />
 

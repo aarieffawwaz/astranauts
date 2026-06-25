@@ -1,65 +1,125 @@
 import { useState } from "react";
 import { INDONESIA_PROVINCES, INDONESIA_VIEWBOX, projectLonLat } from "@/lib/indonesiaGeo";
 
+// Coordinates sourced from pamapersada.com/en/our-project site listings.
 export const PAMA_REGIONS = [
-  { region: "Sumatera Selatan", sites: ["MTBU", "BTSJ"], lon: 103.8, lat: -3.7 },
-  { region: "Kalimantan Tengah", sites: ["SMMS", "ASMI", "TOPB"], lon: 113.5, lat: -1.5 },
-  { region: "Kalimantan Selatan", sites: ["ARIA", "BBSO (Support Office)"], lon: 115.2, lat: -3.0 },
-  { region: "Kalimantan Timur", sites: ["KPCB", "KIDE", "INDO", "BEKB", "BAYA", "BPOP", "BRCB", "BRCG", "KPCS", "TCMM"], lon: 117.5, lat: -2.1, highlight: true },
-  { region: "Sulawesi", sites: ["HMNT", "VIPO"], lon: 121.7, lat: -2.6 },
-  { region: "Office", sites: ["PAMA CCOS", "PPIC", "PAMA HO"], lon: 106.82, lat: -6.21 },
+  { region: "Sumatera Selatan", sites: ["MTBU", "BTSJ"], lon: 103.8, lat: -3.68 },
+  { region: "Kalimantan Tengah", sites: ["SMMS", "ASMI", "TOPB"], lon: 114.93, lat: -0.97 },
+  { region: "Kalimantan Selatan", sites: ["ARIA", "BBSO (Support Office)"], lon: 115.4, lat: -3.55 },
+  // A.R.M.O.R pilot site: Binungan, Berau — north of the equator, hence positive lat.
+  { region: "Kalimantan Timur", sites: ["KPCB", "KIDE", "INDO", "BEKB", "BAYA", "BPOP", "BRCB", "BRCG", "KPCS", "TCMM"], lon: 117.45, lat: 2.05, highlight: true },
+  { region: "Sulawesi", sites: ["HMNT", "VIPO"], lon: 121.69, lat: -3.3 },
+  { region: "Office", sites: ["PAMA CCOS", "PPIC", "PAMA HO"], lon: 106.93, lat: -6.2 },
 ];
 
-export default function IndonesiaMap({ compact = false }) {
-  const [active, setActive] = useState(null);
+const [, , VB_W, VB_H] = INDONESIA_VIEWBOX.split(" ").map(Number);
+const ZOOM_SCALE = 3.4;
+
+export default function IndonesiaMap({ compact = false, selected: selectedProp, onSelectedChange }) {
+  const [hovered, setHovered] = useState(null);
+  const [selectedState, setSelectedState] = useState(null);
+  const isControlled = selectedProp !== undefined;
+  const selected = isControlled ? selectedProp : selectedState;
+  const setSelected = isControlled ? onSelectedChange : setSelectedState;
+
+  const selectedRegion = PAMA_REGIONS.find((r) => r.region === selected);
+  const scale = selectedRegion ? ZOOM_SCALE : 1;
+
+  let groupTransform = "translate(0px,0px) scale(1)";
+  if (selectedRegion) {
+    const [x, y] = projectLonLat(selectedRegion.lon, selectedRegion.lat);
+    const tx = VB_W / 2 - x * ZOOM_SCALE;
+    const ty = VB_H / 2 - y * ZOOM_SCALE;
+    groupTransform = `translate(${tx}px,${ty}px) scale(${ZOOM_SCALE})`;
+  }
+
+  const toggleRegion = (name) => setSelected((cur) => (cur === name ? null : name));
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-950/60 armor-dot-grid-bg">
       <svg viewBox={INDONESIA_VIEWBOX} className="h-full w-full">
-        {INDONESIA_PROVINCES.map((p) => (
-          <path
-            key={p.name}
-            d={p.d}
-            fillRule="evenodd"
-            fill="rgba(245,158,11,0.07)"
-            stroke="rgba(245,158,11,0.3)"
-            strokeWidth="0.6"
-            strokeLinejoin="round"
-          />
-        ))}
+        <rect
+          x="0" y="0" width={VB_W} height={VB_H}
+          fill="transparent"
+          onClick={() => !compact && setSelected(null)}
+          style={{ cursor: !compact && selected ? "zoom-out" : "default" }}
+        />
+        <g
+          style={{
+            transform: groupTransform,
+            transformOrigin: "0 0",
+            transition: "transform 700ms cubic-bezier(0.22,1,0.36,1)",
+          }}
+        >
+          {INDONESIA_PROVINCES.map((p) => (
+            <path
+              key={p.name}
+              d={p.d}
+              fillRule="evenodd"
+              fill="rgba(245,158,11,0.07)"
+              stroke="rgba(245,158,11,0.3)"
+              strokeWidth={0.6 / scale}
+              strokeLinejoin="round"
+              style={{ pointerEvents: "none" }}
+            />
+          ))}
 
-        {PAMA_REGIONS.map((r) => {
-          const [x, y] = projectLonLat(r.lon, r.lat);
-          return (
-            <g
-              key={r.region}
-              onMouseEnter={() => !compact && setActive(r.region)}
-              onMouseLeave={() => !compact && setActive(null)}
-              style={{ cursor: compact ? "default" : "pointer" }}
-            >
-              {r.highlight && (
-                <circle cx={x} cy={y} r={compact ? 10 : 14} fill="rgba(245,158,11,0.35)" className="animate-pulse-dot" />
-              )}
-              <circle
-                cx={x}
-                cy={y}
-                r={r.highlight ? (compact ? 5 : 6) : compact ? 3.5 : 4.5}
-                fill={r.highlight ? "#f59e0b" : "#94a3b8"}
-                stroke={r.highlight ? "#fde68a" : "#1e293b"}
-                strokeWidth="1.5"
-              />
-              {!compact && <title>{r.region}: {r.sites.join(", ")}</title>}
-            </g>
-          );
-        })}
+          {PAMA_REGIONS.map((r) => {
+            const [x, y] = projectLonLat(r.lon, r.lat);
+            const isActive = selected === r.region;
+            return (
+              <g
+                key={r.region}
+                onMouseEnter={() => !compact && setHovered(r.region)}
+                onMouseLeave={() => !compact && setHovered(null)}
+                onClick={() => !compact && toggleRegion(r.region)}
+                style={{ cursor: compact ? "default" : "pointer" }}
+              >
+                {r.highlight && (
+                  <circle cx={x} cy={y} r={(compact ? 10 : 14) / scale} fill="rgba(245,158,11,0.35)" className="animate-pulse-dot" />
+                )}
+                {isActive && (
+                  <circle cx={x} cy={y} r={20 / scale} fill="none" stroke="#fde68a" strokeWidth={1.2 / scale} opacity="0.8" />
+                )}
+                <circle
+                  cx={x}
+                  cy={y}
+                  r={(r.highlight ? (compact ? 5 : 6) : compact ? 3.5 : 4.5) / scale}
+                  fill={r.highlight ? "#f59e0b" : isActive ? "#fde68a" : "#94a3b8"}
+                  stroke={r.highlight ? "#fde68a" : "#1e293b"}
+                  strokeWidth={1.5 / scale}
+                />
+                {!compact && <title>{r.region}: {r.sites.join(", ")}</title>}
+              </g>
+            );
+          })}
+        </g>
       </svg>
 
-      {!compact && active && (
-        <div className="pointer-events-none absolute left-4 top-4 max-w-[260px] rounded-lg border border-amber-500/30 bg-slate-900/95 px-3 py-2 text-xs shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
-          <p className="font-semibold text-amber-400">{active}</p>
-          <p className="mt-1 text-slate-300">
-            {PAMA_REGIONS.find((r) => r.region === active)?.sites.join(" · ")}
-          </p>
+      {/* Always-visible site list overlay — no hover needed */}
+      {!compact && (
+        <div className="pointer-events-auto absolute left-3 top-3 max-h-[calc(100%-1.5rem)] w-[230px] overflow-y-auto rounded-lg border border-white/10 bg-slate-950/85 p-2.5 text-xs shadow-[0_8px_24px_rgba(0,0,0,0.5)] backdrop-blur-sm">
+          {PAMA_REGIONS.map((r) => {
+            const isActive = selected === r.region || (!selected && hovered === r.region);
+            return (
+              <button
+                key={r.region}
+                type="button"
+                onClick={() => toggleRegion(r.region)}
+                onMouseEnter={() => setHovered(r.region)}
+                onMouseLeave={() => setHovered(null)}
+                className={`mb-1.5 block w-full rounded-md px-2 py-1.5 text-left transition-colors last:mb-0 ${
+                  isActive ? "bg-amber-500/15 ring-1 ring-amber-500/40" : "hover:bg-white/5"
+                }`}
+              >
+                <p className={`font-semibold ${r.highlight ? "text-amber-400" : "text-slate-200"}`}>
+                  {r.region}
+                  {r.highlight && <span className="ml-1.5 rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-medium text-amber-300">A.R.M.O.R</span>}
+                </p>
+                <p className="mt-0.5 leading-snug text-slate-400">{r.sites.join(" · ")}</p>
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -72,6 +132,16 @@ export default function IndonesiaMap({ compact = false }) {
             <span className="size-2 rounded-full bg-slate-400" /> PAMA Site
           </span>
         </div>
+      )}
+
+      {!compact && selected && (
+        <button
+          type="button"
+          onClick={() => setSelected(null)}
+          className="absolute right-3 top-3 rounded-full border border-white/10 bg-slate-950/80 px-3 py-1.5 text-[11px] font-medium text-slate-300 backdrop-blur-sm hover:bg-white/10"
+        >
+          Zoom out
+        </button>
       )}
     </div>
   );
