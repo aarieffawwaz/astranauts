@@ -57,12 +57,14 @@ export const MOCK_FUEL_ACTIVITY = [
   { robot_id: 3, activity: "Loading A → Dumping B", liters: 3.5, distance_m: 430, efficiency: 0.81 },
 ];
 
-export const MOCK_LEADERBOARD = MOCK_FLEET.map((r, i) => ({
-  rank: i + 1,
-  operator: r.operator,
-  score: r.score,
-  trend: i === 0 ? "up" : i === 1 ? "down" : "up",
-}));
+export const MOCK_LEADERBOARD = [...MOCK_FLEET]
+  .sort((a, b) => b.score - a.score)
+  .map((r, i) => ({
+    rank: i + 1,
+    operator: r.operator,
+    score: r.score,
+    trend: i === 0 ? "up" : i === 1 ? "down" : "up",
+  }));
 
 export const MOCK_ALERTS = [
   {

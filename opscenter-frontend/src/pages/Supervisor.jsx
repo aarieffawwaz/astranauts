@@ -4,7 +4,6 @@ import { ShieldCheck, LogOut, TrendingUp, TrendingDown, Gauge, Layers, Send as S
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import api from "@/lib/api";
 import { socket, connectSocket, disconnectSocket } from "@/lib/socket";
@@ -167,11 +166,6 @@ export default function Supervisor() {
                 </div>
                 <p className="text-[11px] text-slate-400">{r.operator} · {r.speed} cm/s</p>
                 <div className="mt-1.5 flex items-center gap-1">
-                  <span className="w-8 text-[9px] text-slate-500">BATT</span>
-                  <Progress value={r.battery_level} className="h-1" />
-                  <span className="w-7 text-right text-[9px] text-slate-400">{r.battery_level}%</span>
-                </div>
-                <div className="mt-1 flex items-center gap-1">
                   <span className="w-8 text-[9px] text-slate-500">FUEL</span>
                   <div className="relative h-1 w-full overflow-hidden rounded-full bg-muted">
                     <div
@@ -281,6 +275,7 @@ export default function Supervisor() {
       <Card className="mt-4 border border-white/10 bg-slate-900/60 p-4 shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
         <p className="mb-3 flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-200">
           <Bot className="size-4 text-amber-400" /> AI Chat
+          <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-400">AI Agent</span>
         </p>
         <div className="mb-2 flex max-h-32 flex-col gap-1.5 overflow-y-auto">
           {chat.map((m, i) => (

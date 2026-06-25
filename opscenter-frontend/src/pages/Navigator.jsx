@@ -114,7 +114,7 @@ export default function Navigator() {
         <div className="absolute bottom-3 left-3 z-[1000] rounded-lg border border-white/10 bg-slate-900/85 p-2.5 backdrop-blur-sm">
           <p className="text-xs font-bold text-white">{ROBOT_NAME} · {NAV_ROBOT.operator}</p>
           <p className="text-[11px] text-slate-400">
-            {Math.round(telemetry.speed ?? 0)} cm/s · {Math.round(telemetry.battery_level ?? 0)}% batt
+            {Math.round(telemetry.speed ?? 0)} cm/s
           </p>
         </div>
       </Card>
@@ -124,7 +124,6 @@ export default function Navigator() {
           <p className="mb-3 text-sm font-semibold tracking-wide text-slate-200">Telemetry</p>
           <TelemetryRow label="Power" value={`${Math.round((telemetry.speed ?? 0) * 6)}W`} pct={(telemetry.speed ?? 0) * 4} />
           <TelemetryRow label="Tilt" value={`${telemetry.pitch ?? 0}°`} pct={Math.abs(telemetry.pitch ?? 0) * 10} />
-          <TelemetryRow label="Battery" value={`${Math.round(telemetry.battery_level ?? 0)}%`} pct={telemetry.battery_level ?? 0} />
           <TelemetryRow label="Fuel" value={`${NAV_ROBOT.fuel_level ?? "—"}%`} pct={NAV_ROBOT.fuel_level ?? 0} color="bg-blue-400" />
           <TelemetryRow label="Signal" value="Good" pct={80} />
           <TelemetryRow label="Latency" value={`${telemetry.network_latency_ms ?? 0}ms`} pct={Math.min(100, telemetry.network_latency_ms ?? 0)} />
@@ -163,7 +162,10 @@ export default function Navigator() {
       </div>
 
       <Card className="col-span-2 border border-white/10 bg-slate-900/60 p-4">
-        <p className="mb-2 text-sm font-medium text-slate-300">AI Co-pilot</p>
+        <p className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-300">
+          AI Co-pilot
+          <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-400">AI Agent</span>
+        </p>
         <div className="mb-2 flex max-h-28 flex-col gap-1.5 overflow-y-auto">
           {messages.map((m, i) => (
             <div key={i} className={chatBubbleClass(m.role)}>

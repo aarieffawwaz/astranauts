@@ -11,6 +11,8 @@ import {
   BrainCircuit,
   LayoutDashboard,
   MapPin,
+  Moon,
+  Satellite,
 } from "lucide-react";
 import LandingLayout from "@/pages/LandingLayout";
 import PamaLogo from "@/components/PamaLogo";
@@ -101,14 +103,41 @@ function CountUp({ end, suffix = "", prefix = "", duration = 1400 }) {
 const TECH_GROUPS = [
   { label: "Frontend", icon: LayoutDashboard, items: ["React", "Socket.IO Client", "Leaflet"] },
   { label: "Backend & Realtime", icon: Server, items: ["Node.js + Express", "PostgreSQL", "Socket.IO", "JWT Auth"] },
-  { label: "Hardware & Sensors", icon: Cpu, items: ["Raspberry Pi 5", "ESP32", "IMU + LiDAR", "GNSS RTK", "Mesh Network (BATMAN)"] },
-  { label: "AI & Data", icon: BrainCircuit, items: ["RAG + pgvector", "Gemini API", "WebSocket Telemetry"] },
+  { label: "Hardware & Sensors", icon: Cpu, items: ["Raspberry Pi 5", "IMU + LiDAR", "GNSS RTK", "Mesh Network (BATMAN)"] },
+  { label: "AI & Data", icon: BrainCircuit, items: ["RAG + pgvector", "Ollama", "AI Agent", "WebSocket Telemetry"] },
 ];
+
+function MiniMapToggle({ mode, onChange }) {
+  return (
+    <div className="flex items-center gap-0.5 rounded border border-white/10 bg-slate-950/80 p-0.5">
+      <button
+        type="button"
+        onClick={() => onChange("dark")}
+        className={`flex items-center gap-0.5 rounded px-1 py-0.5 text-[7px] font-medium transition-colors ${
+          mode === "dark" ? "bg-amber-500 text-slate-950" : "text-slate-400"
+        }`}
+      >
+        <Moon className="size-2" /> Dark
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange("satellite")}
+        className={`flex items-center gap-0.5 rounded px-1 py-0.5 text-[7px] font-medium transition-colors ${
+          mode === "satellite" ? "bg-amber-500 text-slate-950" : "text-slate-400"
+        }`}
+      >
+        <Satellite className="size-2" /> Sat
+      </button>
+    </div>
+  );
+}
 
 export default function Landing() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [activeRegion, setActiveRegion] = useState(null);
+  const [supMapMode, setSupMapMode] = useState("dark");
+  const [navMapMode, setNavMapMode] = useState("dark");
   const heroGlowRef = useParallax(-0.15);
   const heroMockupRef = useParallax(-0.06);
 
@@ -442,12 +471,17 @@ export default function Landing() {
                 <>
                   <div className="mb-1.5 flex items-center justify-between">
                     <span className="text-[9px] font-semibold tracking-wide text-slate-300">Fleet Map · Live</span>
-                    <div className="flex items-center gap-1.5 text-[8px] text-slate-400">
-                      <span className="flex items-center gap-0.5"><span className="size-1.5 rounded-full bg-green-500" />2</span>
-                      <span className="flex items-center gap-0.5"><span className="size-1.5 rounded-full bg-amber-500" />1</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="flex items-center gap-0.5 text-[8px] text-slate-400"><span className="size-1.5 rounded-full bg-green-500" />2</span>
+                      <span className="flex items-center gap-0.5 text-[8px] text-slate-400"><span className="size-1.5 rounded-full bg-amber-500" />1</span>
+                      <MiniMapToggle mode={supMapMode} onChange={setSupMapMode} />
                     </div>
                   </div>
-                  <div className="armor-grid-bg relative h-16 overflow-hidden rounded border border-white/5 bg-slate-950/80">
+                  <div
+                    className={`relative h-16 overflow-hidden rounded border border-white/5 ${
+                      supMapMode === "satellite" ? "bg-[linear-gradient(135deg,#3f4a2e_0%,#5c6b3f_45%,#2f3a24_100%)]" : "armor-grid-bg bg-slate-950/80"
+                    }`}
+                  >
                     <span className="absolute left-3 top-3 size-2 rounded-full bg-green-500 shadow-[0_0_6px_2px_rgba(34,197,94,0.6)]" />
                     <span className="absolute left-11 top-8 size-2 rounded-full bg-green-500 shadow-[0_0_6px_2px_rgba(34,197,94,0.6)]" />
                     <span className="absolute left-[68px] top-3 size-2 rounded-full bg-amber-500 shadow-[0_0_6px_2px_rgba(245,158,11,0.6)]" />
@@ -509,19 +543,24 @@ export default function Landing() {
                 <>
                   <div className="mb-1.5 flex items-center justify-between">
                     <span className="text-[9px] font-semibold tracking-wide text-slate-300">Tactical Map</span>
-                    <div className="flex items-center gap-1.5 text-[8px] text-slate-400">
-                      <span className="flex items-center gap-0.5"><span className="size-1.5 rounded-full bg-green-500" />Move</span>
-                      <span className="flex items-center gap-0.5"><span className="size-1.5 rounded-full bg-red-500" />Alert</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="flex items-center gap-0.5 text-[8px] text-slate-400"><span className="size-1.5 rounded-full bg-green-500" />Move</span>
+                      <span className="flex items-center gap-0.5 text-[8px] text-slate-400"><span className="size-1.5 rounded-full bg-red-500" />Alert</span>
+                      <MiniMapToggle mode={navMapMode} onChange={setNavMapMode} />
                     </div>
                   </div>
-                  <div className="armor-dot-grid-bg relative h-16 overflow-hidden rounded border border-white/5 bg-slate-950/80">
+                  <div
+                    className={`relative h-16 overflow-hidden rounded border border-white/5 ${
+                      navMapMode === "satellite" ? "bg-[linear-gradient(135deg,#3f4a2e_0%,#5c6b3f_45%,#2f3a24_100%)]" : "armor-dot-grid-bg bg-slate-950/80"
+                    }`}
+                  >
                     <span className="absolute left-1/2 top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-green-500 shadow-[0_0_8px_2px_rgba(34,197,94,0.7)]" />
                     <span className="absolute bottom-1 left-1 rounded bg-slate-900/90 px-1 py-0.5 text-[7px] font-medium text-slate-300">
                       HD-001 · 18cm/s
                     </span>
                   </div>
                   <div className="mt-2 space-y-1.5">
-                    {[["Battery", "85%", "85%", "bg-green-400"], ["Fuel", "68%", "68%", "bg-blue-400"], ["Signal", "Good", "80%", "bg-amber-400"]].map(([label, val, width, color]) => (
+                    {[["Fuel", "68%", "68%", "bg-blue-400"], ["Signal", "Good", "80%", "bg-amber-400"]].map(([label, val, width, color]) => (
                       <div key={label}>
                         <div className="flex justify-between text-[8px] text-slate-400">
                           <span>{label}</span>
