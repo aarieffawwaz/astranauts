@@ -266,6 +266,17 @@ code {
   animation: pulse-dot 1.6s ease-in-out infinite;
 }
 
+/* Satellite map: hide vector overlay (borders + site markers) while the camera
+   flies so they can't visibly desync from the tile pane, then reveal on settle. */
+.leaflet-container .leaflet-overlay-pane,
+.leaflet-container .leaflet-marker-pane {
+  transition: opacity 200ms ease;
+}
+.leaflet-container.sat-flying .leaflet-overlay-pane,
+.leaflet-container.sat-flying .leaflet-marker-pane {
+  opacity: 0;
+}
+
 .scanline-overlay {
   position: absolute;
   inset: 0;

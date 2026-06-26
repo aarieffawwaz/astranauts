@@ -576,14 +576,14 @@ export default function Landing() {
               ),
             },
           ].map((m, i) => (
-            <Reveal key={m.label} delay={i * 120}>
-              <div className="group overflow-hidden rounded-xl border border-white/10 bg-slate-900/60 p-4 transition-all hover:border-amber-500/40 hover:shadow-[0_0_30px_rgba(245,158,11,0.2)]">
+            <Reveal key={m.label} delay={i * 120} className="flex h-full flex-col">
+              <div className="group flex flex-1 flex-col overflow-hidden rounded-xl border border-white/10 bg-slate-900/60 p-4 transition-all hover:border-amber-500/40 hover:shadow-[0_0_30px_rgba(245,158,11,0.2)]">
                 <div className="mb-2 flex gap-1.5">
                   <span className="size-2 rounded-full bg-red-500/60" />
                   <span className="size-2 rounded-full bg-amber-500/60" />
                   <span className="size-2 rounded-full bg-green-500/60" />
                 </div>
-                {m.content}
+                <div className="flex flex-1 flex-col justify-center">{m.content}</div>
               </div>
               <p className="mt-3 text-center text-sm font-medium text-slate-400">{m.label}</p>
             </Reveal>
