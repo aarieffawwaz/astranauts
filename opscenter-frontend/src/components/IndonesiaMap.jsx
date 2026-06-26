@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { MapContainer, TileLayer, Polygon, CircleMarker, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Moon, Satellite } from "lucide-react";
@@ -55,28 +55,45 @@ function SatelliteView({ selectedRegion, compact, setHovered, toggleRegion, sele
       {PAMA_REGIONS.map((r) => {
         const isActive = selected === r.region;
         return (
-          <CircleMarker
-            key={r.region}
-            center={[r.lat, r.lon]}
-            radius={r.highlight ? (compact ? 7 : 9) : compact ? 5 : 6.5}
-            pathOptions={{
-              color: r.highlight ? "#fde68a" : "#1e293b",
-              weight: 1.5,
-              fillColor: r.highlight ? "#f59e0b" : isActive ? "#fde68a" : "#94a3b8",
-              fillOpacity: 1,
-            }}
-            eventHandlers={
-              compact
-                ? undefined
-                : {
-                    click: () => toggleRegion(r.region),
-                    mouseover: () => setHovered(r.region),
-                    mouseout: () => setHovered(null),
-                  }
-            }
-          >
-            {!compact && <Tooltip>{r.region}: {r.sites.join(", ")}</Tooltip>}
-          </CircleMarker>
+          <Fragment key={r.region}>
+            {r.highlight && (
+              <CircleMarker
+                center={[r.lat, r.lon]}
+                radius={compact ? 10 : 14}
+                pathOptions={{ stroke: false, fillColor: "#f59e0b", fillOpacity: 0.35, className: "animate-pulse-dot" }}
+                interactive={false}
+              />
+            )}
+            {isActive && (
+              <CircleMarker
+                center={[r.lat, r.lon]}
+                radius={20}
+                pathOptions={{ color: "#fde68a", weight: 1.2, fill: false, opacity: 0.8 }}
+                interactive={false}
+              />
+            )}
+            <CircleMarker
+              center={[r.lat, r.lon]}
+              radius={r.highlight ? (compact ? 7 : 9) : compact ? 5 : 6.5}
+              pathOptions={{
+                color: r.highlight ? "#fde68a" : "#1e293b",
+                weight: 1.5,
+                fillColor: r.highlight ? "#f59e0b" : isActive ? "#fde68a" : "#94a3b8",
+                fillOpacity: 1,
+              }}
+              eventHandlers={
+                compact
+                  ? undefined
+                  : {
+                      click: () => toggleRegion(r.region),
+                      mouseover: () => setHovered(r.region),
+                      mouseout: () => setHovered(null),
+                    }
+              }
+            >
+              {!compact && <Tooltip>{r.region}: {r.sites.join(", ")}</Tooltip>}
+            </CircleMarker>
+          </Fragment>
         );
       })}
     </MapContainer>
