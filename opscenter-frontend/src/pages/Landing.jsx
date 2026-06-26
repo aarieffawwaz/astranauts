@@ -154,7 +154,7 @@ export default function Landing() {
       {/* NAVBAR */}
       <nav
         className={`fixed inset-x-0 top-0 z-50 flex items-center justify-between px-6 py-4 transition-all duration-300 sm:px-10 ${
-          scrolled ? "bg-black/80 backdrop-blur-md border-b border-white/10" : "bg-transparent"
+          scrolled ? "bg-slate-950/95 border-b border-white/10" : "bg-transparent"
         }`}
       >
         <div className="flex items-center gap-3">

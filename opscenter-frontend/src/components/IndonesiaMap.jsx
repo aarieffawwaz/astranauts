@@ -108,14 +108,27 @@ export default function IndonesiaMap({ compact = false, selected: selectedProp, 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-950/60 armor-dot-grid-bg [&_.leaflet-pane]:z-0">
       {isSatellite ? (
-        <SatelliteView
-          selectedRegion={selectedRegion}
-          compact={compact}
-          hovered={hovered}
-          setHovered={setHovered}
-          toggleRegion={toggleRegion}
-          selected={selected}
-        />
+        <>
+          <SatelliteView
+            selectedRegion={selectedRegion}
+            compact={compact}
+            hovered={hovered}
+            setHovered={setHovered}
+            toggleRegion={toggleRegion}
+            selected={selected}
+          />
+          {/* Brand overlay — amber grid + vignette on top of the real satellite imagery */}
+          <div
+            className="pointer-events-none absolute inset-0 z-[400]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(245,158,11,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(245,158,11,0.35) 1px, transparent 1px)",
+              backgroundSize: "32px 32px",
+            }}
+          />
+          <div className="pointer-events-none absolute inset-0 z-[400] bg-[radial-gradient(ellipse_at_center,transparent_50%,rgba(245,158,11,0.18)_100%)]" />
+          <div className="pointer-events-none absolute inset-0 z-[400] rounded-2xl ring-1 ring-inset ring-amber-500/30" />
+        </>
       ) : (
         <svg viewBox={INDONESIA_VIEWBOX} className="h-full w-full">
           <rect
