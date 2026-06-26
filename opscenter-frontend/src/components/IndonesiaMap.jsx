@@ -1,5 +1,6 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Polygon, CircleMarker, Tooltip, useMap } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Moon, Satellite } from "lucide-react";
 import { INDONESIA_PROVINCES, INDONESIA_PROVINCES_LATLNG, INDONESIA_VIEWBOX, projectLonLat } from "@/lib/indonesiaGeo";
@@ -24,6 +25,12 @@ const INDONESIA_BOUNDS = [
 ];
 
 function SatelliteView({ selectedRegion, compact, setHovered, toggleRegion, selected }) {
+  // Province borders are ~38 polygons with thousands of points combined — drawing them on
+  // their own canvas renderer (instead of the default SVG) keeps flyTo pan/zoom smooth,
+  // since canvas repaints as one bitmap instead of reflowing hundreds of DOM path nodes
+  // every animation frame. Markers stay on SVG (default) so animate-pulse-dot still works.
+  const canvasRenderer = useMemo(() => L.canvas({ padding: 0.5 }), []);
+
   return (
     <MapContainer
       bounds={INDONESIA_BOUNDS}
@@ -36,6 +43,7 @@ function SatelliteView({ selectedRegion, compact, setHovered, toggleRegion, sele
       touchZoom={false}
       boxZoom={false}
       keyboard={false}
+      fadeAnimation={false}
     >
       <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
       <FlyToSelected selectedRegion={selectedRegion} />
@@ -43,6 +51,7 @@ function SatelliteView({ selectedRegion, compact, setHovered, toggleRegion, sele
         <Polygon
           key={p.name}
           positions={p.rings}
+          renderer={canvasRenderer}
           pathOptions={{
             color: "rgba(245,158,11,0.6)",
             weight: 1,
