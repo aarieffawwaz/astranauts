@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, TileLayer, Polygon, CircleMarker, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -111,12 +111,30 @@ function SatelliteView({ selectedRegion, compact, setHovered, toggleRegion, sele
 
 function FlyToSelected({ selectedRegion }) {
   const map = useMap();
+  const first = useRef(true);
   useEffect(() => {
+    // Vector layers (province borders + site markers) re-project per frame during a
+    // flyTo and visibly desync from the tile pane — markers "jump" onto the ocean
+    // mid-flight. Dark mode never desyncs because it's a single CSS-transformed SVG
+    // group. To match that clean feel we hide the whole vector overlay while the
+    // camera is moving and reveal it crisply once it settles (see .sat-flying in CSS).
+    const container = map.getContainer();
+    const settle = () => container.classList.remove("sat-flying");
+
+    if (!first.current) container.classList.add("sat-flying");
+    first.current = false;
+
     if (selectedRegion) {
       map.flyTo([selectedRegion.lat, selectedRegion.lon], 7, { duration: 0.9 });
     } else {
       map.flyToBounds(INDONESIA_BOUNDS, { duration: 0.9 });
     }
+    map.once("moveend", settle);
+
+    return () => {
+      map.off("moveend", settle);
+      container.classList.remove("sat-flying");
+    };
   }, [selectedRegion, map]);
   return null;
 }
