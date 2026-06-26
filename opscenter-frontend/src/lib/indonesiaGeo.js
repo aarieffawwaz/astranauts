@@ -10,3 +10,35 @@ export function projectLonLat(lon, lat) {
   const y = ((maxLat - lat) / (maxLat - minLat)) * 334;
   return [x, y];
 }
+
+function unprojectXY(x, y) {
+  const minLon = 95, maxLon = 141.05, minLat = -11.05, maxLat = 6.05;
+  const lon = minLon + (x / 900) * (maxLon - minLon);
+  const lat = maxLat - (y / 334) * (maxLat - minLat);
+  return [lat, lon];
+}
+
+// SVG "d" strings here only ever use M/L/Z (no curves) — parse into rings of [lat, lon]
+// by inverting projectLonLat, so the same province outlines can be drawn as real
+// lat/lon polygons on the Leaflet satellite view.
+function parseRings(d) {
+  const rings = [];
+  let current = null;
+  for (const token of d.split(/\s+/)) {
+    if (!token) continue;
+    if (token === "Z" || token === "z") continue;
+    const cmd = token[0];
+    const [x, y] = token.slice(1).split(",").map(Number);
+    if (cmd === "M") {
+      current = [];
+      rings.push(current);
+    }
+    if (current) current.push(unprojectXY(x, y));
+  }
+  return rings;
+}
+
+export const INDONESIA_PROVINCES_LATLNG = INDONESIA_PROVINCES.map((p) => ({
+  name: p.name,
+  rings: parseRings(p.d),
+}));

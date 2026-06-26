@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Polygon, CircleMarker, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Moon, Satellite } from "lucide-react";
-import { INDONESIA_PROVINCES, INDONESIA_VIEWBOX, projectLonLat } from "@/lib/indonesiaGeo";
+import { INDONESIA_PROVINCES, INDONESIA_PROVINCES_LATLNG, INDONESIA_VIEWBOX, projectLonLat } from "@/lib/indonesiaGeo";
 
 // Coordinates sourced from pamapersada.com/en/our-project site listings.
 export const PAMA_REGIONS = [
@@ -39,6 +39,19 @@ function SatelliteView({ selectedRegion, compact, setHovered, toggleRegion, sele
     >
       <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
       <FlyToSelected selectedRegion={selectedRegion} />
+      {INDONESIA_PROVINCES_LATLNG.map((p) => (
+        <Polygon
+          key={p.name}
+          positions={p.rings}
+          pathOptions={{
+            color: "rgba(245,158,11,0.6)",
+            weight: 1,
+            fillColor: "#f59e0b",
+            fillOpacity: 0.08,
+          }}
+          interactive={false}
+        />
+      ))}
       {PAMA_REGIONS.map((r) => {
         const isActive = selected === r.region;
         return (
@@ -117,15 +130,7 @@ export default function IndonesiaMap({ compact = false, selected: selectedProp, 
             toggleRegion={toggleRegion}
             selected={selected}
           />
-          {/* Brand overlay — amber grid + vignette on top of the real satellite imagery */}
-          <div
-            className="pointer-events-none absolute inset-0 z-[400]"
-            style={{
-              backgroundImage:
-                "linear-gradient(rgba(245,158,11,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(245,158,11,0.35) 1px, transparent 1px)",
-              backgroundSize: "32px 32px",
-            }}
-          />
+          {/* Brand overlay — vignette + ring on top of the real satellite imagery; province borders are drawn as real Polygons above */}
           <div className="pointer-events-none absolute inset-0 z-[400] bg-[radial-gradient(ellipse_at_center,transparent_50%,rgba(245,158,11,0.18)_100%)]" />
           <div className="pointer-events-none absolute inset-0 z-[400] rounded-2xl ring-1 ring-inset ring-amber-500/30" />
         </>
