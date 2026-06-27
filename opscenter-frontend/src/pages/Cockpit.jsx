@@ -27,6 +27,9 @@ import {
   Volume2,
   Siren,
   Droplets,
+  BatteryMedium,
+  Lock,
+  UserCog,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -105,6 +108,7 @@ const ROUTE_CHECKPOINTS = [
 ];
 
 const SPEED_TREND = [12, 14, 16, 15, 17, 18, 18, 19, 18, 17, 18, 18];
+const BATTERY_TREND = [91, 90, 90, 89, 88, 88, 87, 87, 86, 86, 85, 85];
 
 export default function Cockpit() {
   const navigate = useNavigate();
@@ -118,6 +122,7 @@ export default function Cockpit() {
   const [activeKeys, setActiveKeys] = useState(new Set());
   const [quickActions, setQuickActions] = useState(QUICK_ACTIONS_DEFAULT);
   const [pushToTalk, setPushToTalk] = useState(false);
+  const [sessionLocked, setSessionLocked] = useState(false);
   const [shiftSeconds, setShiftSeconds] = useState(8077);
 
   useEffect(() => {
@@ -201,7 +206,7 @@ export default function Cockpit() {
   const distSafe = (telemetry.distance_to_obstacle ?? 45) > 30;
 
   return (
-    <div className="armor-dot-grid-bg flex min-h-screen w-full flex-col bg-slate-950 p-4 text-white">
+    <div className="armor-dot-grid-bg flex h-screen w-full flex-col overflow-hidden bg-slate-950 p-4 text-white">
       {/* header */}
       <header className="flex items-center justify-between border-b border-white/10 pb-3">
         <div className="flex items-center gap-3">
@@ -226,9 +231,9 @@ export default function Cockpit() {
       </header>
 
       {/* console body */}
-      <div className="mt-4 grid flex-1 grid-cols-1 gap-3 lg:grid-cols-[260px_1fr_280px]">
+      <div className="mt-4 grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[260px_1fr_280px]">
         {/* LEFT: telemetry + system health */}
-        <div className="flex flex-col gap-3">
+        <div className="min-h-0 space-y-3 overflow-y-auto pr-1">
           <Card className="border border-white/10 bg-slate-900/60 p-4">
             <p className="flex items-center gap-1.5 text-xs uppercase text-slate-400">
               <Gauge className="size-3.5" /> Speed
@@ -368,7 +373,7 @@ export default function Cockpit() {
         </div>
 
         {/* CENTER: camera stage */}
-        <div className="flex flex-col gap-3">
+        <div className="min-h-0 space-y-3 overflow-y-auto pr-1">
           <div className="relative h-[38vh] min-h-[260px]">
             <CameraFeedPanel label="FRONT" size="large" videoSrc="/media/cockpit-feed.mp4" />
           </div>
@@ -379,7 +384,7 @@ export default function Cockpit() {
           </div>
           <TruckSchematic />
 
-          <Card className="flex flex-1 flex-col border border-white/10 bg-slate-900/60 p-4">
+          <Card className="border border-white/10 bg-slate-900/60 p-4">
             <p className="mb-3 flex items-center gap-1.5 text-xs uppercase text-slate-400">
               <MapPin className="size-3.5" /> Route Progress
             </p>
@@ -402,17 +407,24 @@ export default function Cockpit() {
               ))}
             </div>
 
-            <div className="mt-6 flex flex-1 flex-col">
+            <div className="mt-6 flex flex-col">
               <p className="mb-2 flex items-center gap-1.5 text-xs uppercase text-slate-400">
                 <Gauge className="size-3.5" /> Speed Trend (60s)
               </p>
               <SpeedTrendChart data={SPEED_TREND} />
             </div>
+
+            <div className="mt-6 flex flex-col">
+              <p className="mb-2 flex items-center gap-1.5 text-xs uppercase text-slate-400">
+                <BatteryMedium className="size-3.5" /> Battery Drain (60s)
+              </p>
+              <SpeedTrendChart data={BATTERY_TREND} max={100} unit="%" color="#22c55e" gradientId="batteryFill" />
+            </div>
           </Card>
         </div>
 
         {/* RIGHT: control panel */}
-        <div className="flex flex-col gap-3">
+        <div className="min-h-0 space-y-3 overflow-y-auto pr-1">
           <ControlModeToggle mode={controlMode} onChange={setControlMode} />
 
           {controlMode === "keyboard" ? (
@@ -565,6 +577,28 @@ export default function Cockpit() {
                 </button>
               ))}
             </div>
+          </Card>
+
+          <Card className="border border-white/10 bg-slate-900/60 p-4">
+            <p className="mb-2 text-xs uppercase text-slate-400">Session Control</p>
+            <button
+              type="button"
+              onClick={() => setSessionLocked((v) => !v)}
+              className={cn(
+                "flex w-full items-center justify-center gap-1.5 rounded-md border py-2 font-mono text-xs font-semibold uppercase tracking-wide transition-colors",
+                sessionLocked
+                  ? "border-blue-500/50 bg-blue-500/15 text-blue-300"
+                  : "border-white/10 text-slate-400 hover:bg-white/5"
+              )}
+            >
+              <Lock className="size-3.5" /> {sessionLocked ? "Controls Locked" : "Lock Controls"}
+            </button>
+            <button
+              type="button"
+              className="mt-1.5 flex w-full items-center justify-center gap-1.5 rounded-md border border-white/10 py-2 font-mono text-xs font-semibold uppercase tracking-wide text-slate-400 transition-colors hover:bg-white/5"
+            >
+              <UserCog className="size-3.5" /> Request Handoff
+            </button>
           </Card>
 
           <button

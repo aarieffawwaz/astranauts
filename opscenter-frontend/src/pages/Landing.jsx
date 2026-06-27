@@ -13,11 +13,45 @@ import {
   MapPin,
   Moon,
   Satellite,
+  Truck,
+  Gauge,
+  Repeat,
+  ShieldCheck,
+  Wifi,
+  BatteryMedium,
+  Trophy,
+  Activity,
+  Fuel,
+  Radar,
+  Octagon,
+  ShieldAlert,
+  Cctv,
+  Route,
 } from "lucide-react";
+
+const HERO_STATS = [
+  { label: "Active Units", value: "3/3", icon: Truck, note: "ALL ONLINE", noteColor: "text-green-400" },
+  { label: "Avg Utilization", value: "82%", icon: Gauge, note: "+4% ▲", noteColor: "text-green-400" },
+  { label: "Total Cycles", value: "145", icon: Repeat, note: "TODAY", noteColor: "text-slate-500" },
+  { label: "Safety Score", value: "98/100", icon: ShieldCheck, note: "NOMINAL", noteColor: "text-green-400" },
+];
+
+const HERO_LEADERBOARD = [
+  { name: "Budi", score: 945, rank: 1 },
+  { name: "Sarif", score: 825, rank: 2 },
+  { name: "Agus", score: 705, rank: 3 },
+];
+
+const RANK_COLOR = {
+  1: "border-amber-400/60 bg-amber-400/20 text-amber-300",
+  2: "border-slate-300/40 bg-slate-300/15 text-slate-200",
+  3: "border-amber-700/50 bg-amber-700/20 text-amber-600",
+};
 import LandingLayout from "@/pages/LandingLayout";
 import PamaLogo from "@/components/PamaLogo";
 import ArmorLogo from "@/components/ArmorLogo";
 import IndonesiaMap, { PAMA_REGIONS } from "@/components/IndonesiaMap";
+import pamaHeroVideo from "@/assets/pama video.mp4";
 
 function useParallax(speed = 0.2) {
   const ref = useRef(null);
@@ -136,8 +170,8 @@ export default function Landing() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [activeRegion, setActiveRegion] = useState(null);
-  const [supMapMode, setSupMapMode] = useState("dark");
-  const [navMapMode, setNavMapMode] = useState("dark");
+  const [supMapMode, setSupMapMode] = useState("satellite");
+  const [navMapMode, setNavMapMode] = useState("satellite");
   const heroGlowRef = useParallax(-0.15);
   const heroMockupRef = useParallax(-0.06);
 
@@ -177,6 +211,15 @@ export default function Landing() {
 
       {/* HERO */}
       <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-24 text-center">
+        <video
+          className="absolute inset-0 size-full object-cover"
+          src={pamaHeroVideo}
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+        <div className="absolute inset-0 bg-slate-950/75" />
         <div
           ref={heroGlowRef}
           className="absolute inset-0"
@@ -221,29 +264,78 @@ export default function Landing() {
           className="animate-float relative w-full"
           style={{ transform: "perspective(1000px) rotateX(8deg)" }}
         >
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0a0f1e] p-5 shadow-[0_30px_80px_-20px_rgba(245,158,11,0.25),0_30px_60px_-10px_rgba(0,0,0,0.6)]">
-            <div className="grid grid-cols-4 gap-3">
-              {["Active Units", "Avg Utilization", "Total Cycles", "Safety Score"].map((label, i) => (
-                <div key={label} className="rounded-lg border border-white/10 bg-slate-900/70 p-3 text-left">
-                  <p className="text-[10px] uppercase tracking-wide text-slate-500">{label}</p>
-                  <p className="mt-1 text-lg font-bold text-white">
-                    {["3/3", "82%", "145", "98/100"][i]}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-3 grid grid-cols-[2.3fr_1fr] gap-3">
-              <div className="h-48 rounded-lg border border-white/10">
-                <IndonesiaMap compact />
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0a0f1e] shadow-[0_30px_80px_-20px_rgba(245,158,11,0.25),0_30px_60px_-10px_rgba(0,0,0,0.6)]">
+            {/* window chrome / status bar */}
+            <div className="flex items-center justify-between border-b border-white/10 bg-slate-950/80 px-4 py-2.5">
+              <div className="flex items-center gap-2.5">
+                <span className="flex gap-1">
+                  <span className="size-2 rounded-full bg-red-500/70" />
+                  <span className="size-2 rounded-full bg-amber-500/70" />
+                  <span className="size-2 rounded-full bg-green-500/70" />
+                </span>
+                <span className="font-mono text-xs font-bold tracking-wide text-amber-400">A.R.M.O.R OPSCENTER</span>
+                <span className="rounded border border-green-500/30 bg-green-500/15 px-1.5 py-0.5 font-mono text-[9px] text-green-400">
+                  LINK ACTIVE
+                </span>
               </div>
-              <div className="space-y-2 rounded-lg border border-white/10 bg-slate-900/70 p-3 text-left">
-                <p className="text-[10px] uppercase tracking-wide text-slate-500">Leaderboard</p>
-                {["Budi", "Sarif", "Agus"].map((n, i) => (
-                  <div key={n} className="flex items-center justify-between text-xs">
-                    <span className="text-slate-300">#{i + 1} {n}</span>
-                    <span className="font-mono text-amber-400">{945 - i * 120}</span>
+              <div className="hidden items-center gap-3 font-mono text-[10px] sm:flex">
+                <span className="flex items-center gap-1 text-amber-400">
+                  <BatteryMedium className="size-3.5" /> 85%
+                </span>
+                <span className="text-blue-400">FUEL 68%</span>
+                <Wifi className="size-3.5 text-slate-400" />
+                <span className="flex items-center gap-1 text-red-500">
+                  <span className="animate-blink size-1.5 rounded-full bg-red-500" /> LIVE
+                </span>
+              </div>
+            </div>
+
+            <div className="p-5">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {HERO_STATS.map((s) => (
+                  <div key={s.label} className="rounded-lg border border-white/10 bg-slate-900/70 p-3 text-left">
+                    <div className="flex items-start justify-between">
+                      <p className="text-[10px] uppercase tracking-wide text-slate-500">{s.label}</p>
+                      <s.icon className="size-3.5 text-amber-400/70" />
+                    </div>
+                    <p className="mt-1 text-lg font-bold text-white">{s.value}</p>
+                    <p className={`mt-0.5 font-mono text-[9px] ${s.noteColor}`}>{s.note}</p>
                   </div>
                 ))}
+              </div>
+
+              <div className="mt-3 grid grid-cols-[2.3fr_1fr] gap-3">
+                <div className="h-52 rounded-lg border border-white/10">
+                  <IndonesiaMap compact />
+                </div>
+                <div className="flex h-52 flex-col rounded-lg border border-white/10 bg-slate-900/70 p-3 text-left">
+                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-slate-500">
+                    <Trophy className="size-3.5 text-amber-400/70" /> Operator Leaderboard
+                  </p>
+                  <div className="mt-2 space-y-2">
+                    {HERO_LEADERBOARD.map((op) => (
+                      <div key={op.name} className="flex items-center gap-2 text-xs">
+                        <span
+                          className={`flex size-5 shrink-0 items-center justify-center rounded-full border font-mono text-[10px] font-bold ${RANK_COLOR[op.rank]}`}
+                        >
+                          {op.rank}
+                        </span>
+                        <span className="flex-1 text-slate-300">{op.name}</span>
+                        <span className="font-mono text-amber-400">{op.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-auto space-y-1.5 border-t border-white/10 pt-2.5 font-mono text-[10px]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500">FLEET SPEED</span>
+                      <span className="text-slate-200">18 cm/s</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500">LATENCY</span>
+                      <span className="text-green-400">42 ms</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -487,23 +579,29 @@ export default function Landing() {
                     <span className="absolute left-[68px] top-3 size-2 rounded-full bg-amber-500 shadow-[0_0_6px_2px_rgba(245,158,11,0.6)]" />
                   </div>
                   <div className="mt-2 grid grid-cols-4 gap-1">
-                    {[["ACT", "3/3"], ["UTIL", "82%"], ["CYC", "145"], ["SAFE", "98"]].map(([l, v]) => (
+                    {[["ACT", "3/3", Truck], ["UTIL", "82%", Gauge], ["CYC", "145", Repeat], ["SAFE", "98", ShieldCheck]].map(([l, v, Icon]) => (
                       <div key={l} className="rounded bg-slate-800/60 px-1 py-1 text-center">
-                        <p className="text-[6.5px] uppercase text-slate-500">{l}</p>
+                        <div className="flex items-center justify-center gap-0.5 text-slate-500">
+                          <Icon className="size-2" />
+                          <p className="text-[6.5px] uppercase">{l}</p>
+                        </div>
                         <p className="text-[9.5px] font-bold text-white">{v}</p>
                       </div>
                     ))}
                   </div>
-                  <div className="mt-1.5 space-y-1">
+                  <div className="mt-1.5 flex items-center gap-1 text-[8px] text-slate-400">
+                    <Trophy className="size-2.5 text-amber-400/70" /> Operator Leaderboard
+                  </div>
+                  <div className="mt-1 space-y-1">
                     {[["1", "Budi", "945"], ["2", "Sarif", "825"]].map(([rank, name, score]) => (
                       <div key={rank} className="flex items-center justify-between rounded bg-slate-800/50 px-1.5 py-1">
                         <div className="flex items-center gap-1.5">
-                          <span className={`flex size-3.5 items-center justify-center rounded-full text-[7px] font-bold ${rank === "1" ? "bg-amber-500 text-slate-950" : "bg-slate-700 text-slate-300"}`}>
+                          <span className={`flex size-3.5 items-center justify-center rounded-full border text-[7px] font-bold ${rank === "1" ? "border-amber-400/60 bg-amber-400/20 text-amber-300" : "border-slate-300/40 bg-slate-300/15 text-slate-200"}`}>
                             {rank}
                           </span>
                           <span className="text-[9px] text-white">{name}</span>
                         </div>
-                        <span className="font-mono text-[9px] text-white">{score}</span>
+                        <span className="font-mono text-[9px] text-amber-400">{score}</span>
                       </div>
                     ))}
                   </div>
@@ -514,7 +612,15 @@ export default function Landing() {
               label: "Cockpit",
               content: (
                 <>
-                  <div className="relative flex h-20 items-center justify-center overflow-hidden rounded border border-white/10 bg-black">
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <span className="flex items-center gap-1 text-[9px] font-semibold tracking-wide text-slate-300">
+                      <Cctv className="size-2.5 text-amber-400/70" /> Front Cam · HD-001
+                    </span>
+                    <span className="flex items-center gap-1 text-[8px] text-red-500">
+                      <span className="animate-blink size-1.5 rounded-full bg-red-500" /> REC
+                    </span>
+                  </div>
+                  <div className="relative h-20 overflow-hidden rounded border border-white/10 bg-black">
                     <video
                       className="absolute inset-0 size-full object-cover opacity-80"
                       src="/media/cockpit-feed.mp4"
@@ -523,16 +629,31 @@ export default function Landing() {
                       muted
                       playsInline
                     />
-                    <span className="absolute right-1.5 top-1.5 flex items-center gap-1 text-[10px] text-red-500">
-                      <span className="animate-blink size-1.5 rounded-full bg-red-500" /> LIVE
-                    </span>
+                    <span className="absolute left-1.5 top-1.5 size-1.5 border-l border-t border-amber-400/60" />
+                    <span className="absolute right-1.5 top-1.5 size-1.5 border-r border-t border-amber-400/60" />
+                    <span className="absolute bottom-1.5 left-1.5 size-1.5 border-b border-l border-amber-400/60" />
+                    <span className="absolute bottom-1.5 right-1.5 size-1.5 border-b border-r border-amber-400/60" />
                   </div>
-                  <div className="mt-2 flex gap-1.5">
+                  <div className="mt-2 grid grid-cols-3 gap-1">
+                    {[["SPEED", "18cm/s", Gauge, "text-white"], ["DIST", "45cm", Radar, "text-green-400"], ["BATT", "85%", BatteryMedium, "text-amber-400"]].map(([l, v, Icon, c]) => (
+                      <div key={l} className="rounded bg-slate-800/60 px-1 py-1 text-center">
+                        <div className="flex items-center justify-center gap-0.5 text-slate-500">
+                          <Icon className="size-2" />
+                          <p className="text-[6.5px] uppercase">{l}</p>
+                        </div>
+                        <p className={`text-[9.5px] font-bold ${c}`}>{v}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-1.5 flex items-center gap-1.5">
                     {["W", "A", "S", "D"].map((k) => (
                       <span key={k} className="flex size-6 items-center justify-center rounded border border-white/20 text-[10px] text-slate-400">
                         {k}
                       </span>
                     ))}
+                    <span className="ml-auto flex items-center gap-1 rounded border border-red-500/40 bg-red-500/10 px-1.5 py-1 text-[8px] font-semibold text-red-400">
+                      <Octagon className="size-2.5" /> E-STOP
+                    </span>
                   </div>
                 </>
               ),
@@ -560,10 +681,10 @@ export default function Landing() {
                     </span>
                   </div>
                   <div className="mt-2 space-y-1.5">
-                    {[["Fuel", "68%", "68%", "bg-blue-400"], ["Signal", "Good", "80%", "bg-amber-400"]].map(([label, val, width, color]) => (
+                    {[["Fuel", "68%", "68%", "bg-blue-400", Fuel], ["Signal", "Good", "80%", "bg-amber-400", Activity]].map(([label, val, width, color, Icon]) => (
                       <div key={label}>
                         <div className="flex justify-between text-[8px] text-slate-400">
-                          <span>{label}</span>
+                          <span className="flex items-center gap-0.5"><Icon className="size-2" /> {label}</span>
                           <span className="text-slate-200">{val}</span>
                         </div>
                         <div className="mt-0.5 h-1 overflow-hidden rounded-full bg-slate-800">
@@ -571,6 +692,16 @@ export default function Landing() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                  <div className="mt-1.5 space-y-1 border-t border-white/10 pt-1.5 font-mono text-[8px]">
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-0.5 text-slate-500"><Route className="size-2" /> TARGET</span>
+                      <span className="text-slate-200">Dump Pt B</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500">ETA</span>
+                      <span className="text-green-400">7s · 120cm</span>
+                    </div>
                   </div>
                 </>
               ),
@@ -583,7 +714,7 @@ export default function Landing() {
                   <span className="size-2 rounded-full bg-amber-500/60" />
                   <span className="size-2 rounded-full bg-green-500/60" />
                 </div>
-                <div className="flex flex-1 flex-col justify-center">{m.content}</div>
+                <div className="flex flex-1 flex-col">{m.content}</div>
               </div>
               <p className="mt-3 text-center text-sm font-medium text-slate-400">{m.label}</p>
             </Reveal>

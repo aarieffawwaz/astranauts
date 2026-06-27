@@ -142,7 +142,7 @@ function FlyToSelected({ selectedRegion }) {
 export default function IndonesiaMap({ compact = false, selected: selectedProp, onSelectedChange }) {
   const [hovered, setHovered] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
-  const [mapMode, setMapMode] = useState("dark");
+  const [mapMode, setMapMode] = useState("satellite");
   const isControlled = selectedProp !== undefined;
   const selected = isControlled ? selectedProp : selectedState;
   const setSelected = isControlled ? onSelectedChange : setSelectedState;

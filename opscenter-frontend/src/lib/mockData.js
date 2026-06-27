@@ -1,3 +1,5 @@
+import { ROBOT_GEO_POSITIONS } from "./mineGeoData";
+
 export const MOCK_FLEET = [
   {
     robot_id: 1,
@@ -13,7 +15,7 @@ export const MOCK_FLEET = [
     y_position: 40,
     latitude: -1.2,
     longitude: 116.9,
-    geoPosition: [-1.199, 116.901],
+    geoPosition: ROBOT_GEO_POSITIONS["HD-001"],
   },
   {
     robot_id: 2,
@@ -29,7 +31,7 @@ export const MOCK_FLEET = [
     y_position: 60,
     latitude: -1.21,
     longitude: 116.91,
-    geoPosition: [-1.202, 116.897],
+    geoPosition: ROBOT_GEO_POSITIONS["HD-002"],
   },
   {
     robot_id: 3,
@@ -45,7 +47,7 @@ export const MOCK_FLEET = [
     y_position: 25,
     latitude: -1.19,
     longitude: 116.92,
-    geoPosition: [-1.209, 116.909],
+    geoPosition: ROBOT_GEO_POSITIONS["HD-003"],
   },
 ];
 

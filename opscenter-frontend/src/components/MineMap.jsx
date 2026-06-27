@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -6,6 +6,7 @@ import {
   Marker,
   Tooltip,
   CircleMarker,
+  useMap,
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -50,6 +51,21 @@ function truckIcon(color, label, photo) {
   });
 }
 
+const MINE_BOUNDS = L.latLngBounds(
+  MINE_BOUNDARY_GEOJSON.geometry.coordinates[0].map(([lng, lat]) => [lat, lng])
+);
+
+function FitMineBounds() {
+  const map = useMap();
+  useEffect(() => {
+    // Bottom-left fleet status cards + top label bar eat into the map div without
+    // resizing it, so a plain fitBounds optically pushes the pit toward the
+    // upper-right of the *visible* area. Padding compensates for both bars.
+    map.fitBounds(MINE_BOUNDS, { paddingTopLeft: [20, 56], paddingBottomRight: [20, 150] });
+  }, [map]);
+  return null;
+}
+
 const TILE_LAYERS = {
   dark: {
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
@@ -62,7 +78,7 @@ const TILE_LAYERS = {
 };
 
 export default function MineMap({ fleet, height = "100%", onSelect, selectedName }) {
-  const [mapMode, setMapMode] = useState("dark");
+  const [mapMode, setMapMode] = useState("satellite");
   const boundaryStyle = useMemo(
     () => ({ color: "#f59e0b", weight: 1.5, fillColor: "#f59e0b", fillOpacity: mapMode === "satellite" ? 0.12 : 0.06, dashArray: "4 4" }),
     [mapMode]
@@ -102,6 +118,7 @@ export default function MineMap({ fleet, height = "100%", onSelect, selectedName
         zoomControl={true}
       >
         <TileLayer key={mapMode} attribution={tile.attribution} url={tile.url} />
+        <FitMineBounds />
         <GeoJSON data={MINE_BOUNDARY_GEOJSON} style={() => boundaryStyle} />
         <GeoJSON data={HAUL_ROAD_GEOJSON} style={() => roadStyle} />
 
