@@ -54,7 +54,14 @@
 - Added markdown cleaning to strip out formatting syntax (`**`, `*`, `_`, code blocks, etc.) from AI replies before speaking.
 - Optimized TTS to target the native Indonesian voice profile (`id-ID`) directly from the browser's speechSynthesis engine for cleaner pronounciation.
 
+## Web Load Optimization (Video Compression & FastStart)
+- Compressed all video assets (landing page hero video and Cockpit dashboard feed videos) using H.264 (CRF 28) and downscaled resolution to standard mobile/dashboard 360p (640x360).
+- Stripped unnecessary silent audio tracks (`-an`) to reduce decoding overhead and file sizes.
+- Enabled FastStart (`-movflags +faststart`) to place the container metadata (`moov` atom) at the beginning of the files, allowing instant buffer playback in browsers without downloading the full video.
+- Reduced Cockpit folder size from ~69MB to ~4.3MB (94% reduction) and landing hero video from 18.6MB to 1.2MB.
+
 ## Status
 All recent changes committed to main. All feature branches fully merged/up-to-date with main.
+
 
 
