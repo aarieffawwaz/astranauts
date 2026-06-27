@@ -39,7 +39,6 @@ import { socket, connectSocket, disconnectSocket } from "@/lib/socket";
 import { cn } from "@/lib/utils";
 import ControlModeToggle from "@/components/cockpit/ControlModeToggle";
 import CameraFeedPanel from "@/components/cockpit/CameraFeedPanel";
-import LidarView from "@/components/cockpit/LidarView";
 import TruckSchematic from "@/components/cockpit/TruckSchematic";
 import Sparkline from "@/components/cockpit/Sparkline";
 import SpeedTrendChart from "@/components/cockpit/SpeedTrendChart";
@@ -375,12 +374,15 @@ export default function Cockpit() {
         {/* CENTER: camera stage */}
         <div className="min-h-0 space-y-3 overflow-y-auto pr-1">
           <div className="relative h-[38vh] min-h-[260px]">
-            <CameraFeedPanel label="FRONT" size="large" videoSrc="/media/cockpit-feed.mp4" />
+            <CameraFeedPanel label="FRONT" size="large" videoSrc="/media/front.mp4" />
           </div>
           <div className="grid grid-cols-3 gap-3">
-            <CameraFeedPanel label="BACK" />
-            <CameraFeedPanel label="REAR" videoSrc="/media/cockpit-feed.mp4" mirror />
-            <LidarView />
+            <CameraFeedPanel label="BACK" videoSrc="/media/back.mp4" />
+            <CameraFeedPanel label="LEFT" videoSrc="/media/left.mp4" />
+            <CameraFeedPanel label="RIGHT" videoSrc="/media/right.mp4" />
+            <CameraFeedPanel label="UP" videoSrc="/media/up.mp4" />
+            <CameraFeedPanel label="3D VIEW" videoSrc="/media/3d.mp4" />
+            <CameraFeedPanel label="LIDAR" videoSrc="/media/lidar.mp4" />
           </div>
           <TruckSchematic />
 
