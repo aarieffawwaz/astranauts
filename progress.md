@@ -42,4 +42,5 @@
 - Fix `Landing.jsx`: Reveal wrapper `flex h-full flex-col`, card `flex flex-1 flex-col`, content wrapped in `flex flex-1 flex-col justify-center`. Grid stretch → all 3 cards equal height, labels aligned, shorter content vertically centered. Verified live.
 
 ## Status
-Two fixes applied + verified live (vite :5174, Chrome MCP). Not yet committed.
+All recent changes committed to main. All feature branches fully merged/up-to-date with main.
+
