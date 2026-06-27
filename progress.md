@@ -41,6 +41,8 @@
 - Symptom: Supervisor/Cockpit/Navigator mockup cards had ragged unequal heights → labels misaligned at different y.
 - Fix `Landing.jsx`: Reveal wrapper `flex h-full flex-col`, card `flex flex-1 flex-col`, content wrapped in `flex flex-1 flex-col justify-center`. Grid stretch → all 3 cards equal height, labels aligned, shorter content vertically centered. Verified live.
 
+## Cockpit Videos integration
+- Updated `Cockpit.jsx` to load custom front, back, left, right, up, 3D, and LiDAR video feeds from static `/media/` folder. Added the corresponding video assets to both public media folder and assets directories.
+
 ## Status
 All recent changes committed to main. All feature branches fully merged/up-to-date with main.
-
