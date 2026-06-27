@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSmoothNavigate } from "@/hooks/useSmoothNavigate";
 import {
   Wifi,
   Compass,
@@ -110,7 +110,7 @@ const SPEED_TREND = [12, 14, 16, 15, 17, 18, 18, 19, 18, 17, 18, 18];
 const BATTERY_TREND = [91, 90, 90, 89, 88, 88, 87, 87, 86, 86, 85, 85];
 
 export default function Cockpit() {
-  const navigate = useNavigate();
+  const navigate = useSmoothNavigate();
   const [controlMode, setControlMode] = useState("real");
   const [telemetry, setTelemetry] = useState({
     battery_level: 85,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSmoothNavigate } from "@/hooks/useSmoothNavigate";
 import { Monitor, Gamepad2, Loader2, CheckCircle2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
@@ -32,7 +32,7 @@ export default function Login() {
   const [selected, setSelected] = useState("supervisor");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const navigate = useSmoothNavigate();
 
   async function handleEnter() {
     const role = ROLES[selected];

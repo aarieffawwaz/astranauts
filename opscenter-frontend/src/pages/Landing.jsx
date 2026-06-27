@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSmoothNavigate } from "@/hooks/useSmoothNavigate";
 import {
   Monitor,
   Gamepad2,
@@ -167,7 +167,7 @@ function MiniMapToggle({ mode, onChange }) {
 }
 
 export default function Landing() {
-  const navigate = useNavigate();
+  const navigate = useSmoothNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [activeRegion, setActiveRegion] = useState(null);
   const [supMapMode, setSupMapMode] = useState("satellite");

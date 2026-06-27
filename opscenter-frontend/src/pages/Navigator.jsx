@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSmoothNavigate } from "@/hooks/useSmoothNavigate";
 import {
   Gamepad2,
   ArrowLeft,
@@ -67,7 +67,7 @@ const NAV_SYSTEM_HEALTH = [
 ];
 
 export default function Navigator() {
-  const navigate = useNavigate();
+  const navigate = useSmoothNavigate();
   const [pos, setPos] = useState({ x: 30, y: 60 });
   const [telemetry, setTelemetry] = useState({
     speed: 18,

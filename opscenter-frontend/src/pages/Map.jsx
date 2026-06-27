@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSmoothNavigate } from "@/hooks/useSmoothNavigate";
 import { ArrowLeft, X, Battery, Gauge, User, Fuel } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,7 @@ import MineMap from "@/components/MineMap";
 const FILTERS = ["All", "Moving", "Idle", "Alert"];
 
 export default function MapView() {
-  const navigate = useNavigate();
+  const navigate = useSmoothNavigate();
   const [fleet, setFleet] = useState(MOCK_FLEET);
   const [filter, setFilter] = useState("All");
   const [selected, setSelected] = useState(null);

@@ -44,5 +44,11 @@
 ## Cockpit Videos integration
 - Updated `Cockpit.jsx` to load custom front, back, left, right, up, 3D, and LiDAR video feeds from static `/media/` folder. Added the corresponding video assets to both public media folder and assets directories.
 
+## Smooth Page Transitions (View Transitions API)
+- Created custom `useSmoothNavigate` hook that wraps React Router's `useNavigate` using the native `document.startViewTransition` API with React `flushSync`.
+- Added global fade + scale animations to `index.css` under the CSS View Transitions API specs for a smooth, high-fidelity native page transition experience.
+- Refactored all main routes (`Landing`, `Login`, `Supervisor`, `Cockpit`, `Navigator`, and `Map`) to use the new transitions for entry, exit, navigation, and role-switching.
+
 ## Status
 All recent changes committed to main. All feature branches fully merged/up-to-date with main.
+

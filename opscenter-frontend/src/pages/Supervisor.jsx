@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSmoothNavigate } from "@/hooks/useSmoothNavigate";
 import {
   ShieldCheck,
   LogOut,
@@ -109,7 +109,7 @@ const SITE_CONDITIONS = [
 ];
 
 export default function Supervisor() {
-  const navigate = useNavigate();
+  const navigate = useSmoothNavigate();
   const [now, setNow] = useState(new Date());
   const [fleet, setFleet] = useState(MOCK_FLEET);
   const [leaderboard, setLeaderboard] = useState(MOCK_LEADERBOARD);
