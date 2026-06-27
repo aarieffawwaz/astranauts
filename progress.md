@@ -49,6 +49,12 @@
 - Added global fade + scale animations to `index.css` under the CSS View Transitions API specs for a smooth, high-fidelity native page transition experience.
 - Refactored all main routes (`Landing`, `Login`, `Supervisor`, `Cockpit`, `Navigator`, and `Map`) to use the new transitions for entry, exit, navigation, and role-switching.
 
+## Persistent Text-to-Speech (TTS) Improvements
+- Enhanced `useSpeech.js` hook to load/save the voice toggle state via `localStorage` (so voice settings persist across page navigations).
+- Added markdown cleaning to strip out formatting syntax (`**`, `*`, `_`, code blocks, etc.) from AI replies before speaking.
+- Optimized TTS to target the native Indonesian voice profile (`id-ID`) directly from the browser's speechSynthesis engine for cleaner pronounciation.
+
 ## Status
 All recent changes committed to main. All feature branches fully merged/up-to-date with main.
+
 
