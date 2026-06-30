@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
 import { useSmoothNavigate } from "@/hooks/useSmoothNavigate";
 import {
   Monitor,
@@ -80,35 +81,23 @@ function useParallax(speed = 0.2) {
 
 function useReveal() {
   const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          obs.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
+  const visible = useInView(ref, { once: true, amount: 0.2 });
   return [ref, visible];
 }
 
 function Reveal({ children, delay = 0, className = "" }) {
-  const [ref, visible] = useReveal();
+  const ref = useRef(null);
+  const visible = useInView(ref, { once: true, amount: 0.2, margin: "0px 0px -10% 0px" });
   return (
-    <div
+    <motion.div
       ref={ref}
-      className={`${visible ? "fade-up-in" : "fade-up-init"} ${className}`}
-      style={{ animationDelay: `${delay}ms` }}
+      className={className}
+      initial={{ opacity: 0, y: 24, scale: 0.97 }}
+      animate={visible ? { opacity: 1, y: 0, scale: 1 } : {}}
+      transition={{ duration: 0.7, delay: delay / 1000, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
